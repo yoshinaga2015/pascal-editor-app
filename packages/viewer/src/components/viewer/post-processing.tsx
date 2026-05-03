@@ -89,11 +89,13 @@ const PostProcessingPasses = ({
 }: {
   hoverStyles?: HoverStyles
 }) => {
-  const { gl: renderer, invalidate, scene, camera } = useThree()
+  const { gl: renderer, invalidate, scene, camera, size } = useThree()
   const renderPipelineRef = useRef<RenderPipeline | null>(null)
   const hasPipelineErrorRef = useRef(false)
   const retryCountRef = useRef(0)
   const rebuildTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const resizeRebuildTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastCanvasPixelSizeRef = useRef<{ w: number; h: number } | null>(null)
 
   // Background color uniform — updated every frame via lerp, read by the TSL pipeline.
   // Initialised from the current theme so there's no flash on first render.
@@ -146,8 +148,51 @@ const PostProcessingPasses = ({
         clearTimeout(rebuildTimeoutRef.current)
         rebuildTimeoutRef.current = null
       }
+      if (resizeRebuildTimerRef.current !== null) {
+        clearTimeout(resizeRebuildTimerRef.current)
+        resizeRebuildTimerRef.current = null
+      }
     }
   }, [])
+
+  // RenderPipeline / WebGPU passes keep internal targets sized at build time.
+  // Split view (3D pane shrinks) changes the canvas pixel size without swapping
+  // scene/camera/renderer refs — rebuild so dimensions stay in sync.
+  const RESIZE_PIPELINE_DEBOUNCE_MS = 150
+  useEffect(() => {
+    const w = Math.max(1, Math.round(size.width))
+    const h = Math.max(1, Math.round(size.height))
+    const prev = lastCanvasPixelSizeRef.current
+    lastCanvasPixelSizeRef.current = { w, h }
+    if (!prev || (prev.w === w && prev.h === h)) {
+      return
+    }
+
+    // Until the debounced rebuild completes, keep rendering via the direct path —
+    // WebGPU validation errors if the pipeline targets still match the previous size.
+    if (renderPipelineRef.current) {
+      renderPipelineRef.current.dispose()
+      renderPipelineRef.current = null
+    }
+    hasPipelineErrorRef.current = true
+    invalidate()
+
+    if (resizeRebuildTimerRef.current !== null) {
+      clearTimeout(resizeRebuildTimerRef.current)
+    }
+    resizeRebuildTimerRef.current = setTimeout(() => {
+      resizeRebuildTimerRef.current = null
+      retryCountRef.current = 0
+      requestPipelineRebuild()
+    }, RESIZE_PIPELINE_DEBOUNCE_MS)
+
+    return () => {
+      if (resizeRebuildTimerRef.current !== null) {
+        clearTimeout(resizeRebuildTimerRef.current)
+        resizeRebuildTimerRef.current = null
+      }
+    }
+  }, [requestPipelineRebuild, size.height, size.width])
 
   useEffect(() => {
     const style = hoverStyles[hoverHighlightMode] ?? hoverStyles.default
@@ -397,9 +442,12 @@ const PostProcessingPasses = ({
       renderPipelineRef.current.render()
     } catch (error) {
       hasPipelineErrorRef.current = true
+      const errMessage = error instanceof Error ? error.message : String(error)
       console.error('[viewer/post-processing] Render pass failed.', {
         retryCount: retryCountRef.current,
         rendererCtor: (renderer as any).constructor?.name,
+        canvasSize: { width: size.width, height: size.height },
+        message: errMessage,
         error,
       })
       if (renderPipelineRef.current) {
