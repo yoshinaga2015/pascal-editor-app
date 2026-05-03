@@ -3,6 +3,7 @@ import { useViewer } from '@pascal-app/viewer'
 import { Building2, Plus } from 'lucide-react'
 import { memo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { useI18n } from './../../../../../i18n'
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +23,7 @@ export const BuildingTreeNode = memo(function BuildingTreeNode({
   depth,
   isLast,
 }: BuildingTreeNodeProps) {
+  const { t } = useI18n()
   const [expanded, setExpanded] = useState(true)
   const createNode = useScene((state) => state.createNode)
   const isVisible = useScene((s) => s.nodes[nodeId]?.visible !== false)
@@ -61,7 +63,7 @@ export const BuildingTreeNode = memo(function BuildingTreeNode({
                 <Plus className="h-3 w-3" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">Add new level</TooltipContent>
+            <TooltipContent side="right">{t('tree.addLevelTooltip')}</TooltipContent>
           </Tooltip>
         </div>
       }
@@ -73,7 +75,7 @@ export const BuildingTreeNode = memo(function BuildingTreeNode({
       isLast={isLast}
       isSelected={isSelected}
       isVisible={isVisible}
-      label={name || 'Building'}
+      label={name || t('overlay.building')}
       onClick={handleClick}
       onDoubleClick={() => focusTreeNode(nodeId)}
       onToggle={() => setExpanded(!expanded)}

@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { TutorialRoot } from '../../tutorial/tutorial-overlay'
 import { ViewerOverlay } from '../../components/viewer-overlay'
 import { ViewerZoneSystem } from '../../components/viewer-zone-system'
 import { type PresetsAdapter, PresetsProvider } from '../../contexts/presets-context'
@@ -157,6 +158,11 @@ export interface EditorProps {
 
   // Command palette fallback when no commands match
   commandPaletteEmptyAction?: CommandPaletteEmptyAction
+
+  /** Stable id for the loaded scene (e.g. cloud scene id) — tutorial abandon when it changes */
+  tutorialSceneKey?: string | null
+  /** Show one-time banner inviting the guided “first room” project */
+  tutorialOfferOnMount?: boolean
 }
 
 function EditorSceneCrashFallback() {
@@ -891,10 +897,10 @@ const ViewerCanvas = memo(function ViewerCanvas({
             />
           ) : null}
           <SelectionPersistenceManager enabled={hasLoadedInitialScene && !showLoader} />
-          <Viewer
-            hoverStyles={EDITOR_HOVER_STYLES}
-            selectionManager={isFirstPersonMode ? 'default' : 'custom'}
-          >
+          {/* selectionManager must stay `custom`: viewer default SelectionManager clears
+              selection.levelId on pointer-miss clicks (pointer lock / empty hits), which
+              breaks walkthrough + tutorial milestones keyed off levelId. */}
+          <Viewer hoverStyles={EDITOR_HOVER_STYLES} selectionManager="custom">
             <ViewerSceneContent
               isFirstPersonMode={isFirstPersonMode}
               isLoading={isLoading}
@@ -933,6 +939,8 @@ export default function Editor({
   extraSidebarPanels,
   presetsAdapter,
   commandPaletteEmptyAction,
+  tutorialSceneKey,
+  tutorialOfferOnMount = false,
 }: EditorProps) {
   const isFirstPersonMode = useEditor((s) => s.isFirstPersonMode)
   useKeyboard({ isVersionPreviewMode, disabled: isFirstPersonMode })
@@ -1113,6 +1121,10 @@ export default function Editor({
 
     return (
       <PresetsProvider adapter={presetsAdapter}>
+        <TutorialRoot
+          tutorialOfferOnMount={tutorialOfferOnMount}
+          tutorialSceneKey={tutorialSceneKey}
+        />
         {showLoader && (
           <div className="fixed inset-0 z-60">
             <SceneLoader />
@@ -1176,6 +1188,10 @@ export default function Editor({
 
   return (
     <PresetsProvider adapter={presetsAdapter}>
+      <TutorialRoot
+        tutorialOfferOnMount={tutorialOfferOnMount}
+        tutorialSceneKey={tutorialSceneKey}
+      />
       <div className="dark flex h-full w-full gap-3 bg-neutral-100 p-3 text-foreground">
         {showLoader && (
           <div className="fixed inset-0 z-60">

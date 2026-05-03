@@ -131,13 +131,14 @@ function WalkthroughButton() {
             TOOLBAR_BTN,
             isFirstPersonMode && 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/20',
           )}
+          data-tutorial-target="tutorial-walkthrough"
           onClick={toggle}
           type="button"
         >
           <Footprints className="h-4 w-4" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{t('toolbar.walkthrough')}</TooltipContent>
+      <TooltipContent side="bottom">{t('toolbar.walkthroughTooltip')}</TooltipContent>
     </Tooltip>
   )
 }

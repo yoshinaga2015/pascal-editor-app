@@ -66,6 +66,17 @@ export function StructureTools() {
 
         const label = t(tool.labelKey)
 
+        const tutorialTarget =
+          tool.id === 'wall'
+            ? 'tutorial-tool-wall'
+            : tool.id === 'slab'
+              ? 'tutorial-tool-slab'
+              : tool.id === 'door'
+                ? 'tutorial-tool-door'
+                : tool.id === 'spawn'
+                  ? 'tutorial-tool-spawn'
+                  : undefined
+
         return (
           <ActionButton
             className={cn(
@@ -89,6 +100,7 @@ export function StructureTools() {
             }}
             size="icon"
             variant="ghost"
+            {...(tutorialTarget ? { 'data-tutorial-target': tutorialTarget } : {})}
           >
             <NextImage
               alt={label}

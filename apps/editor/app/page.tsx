@@ -44,6 +44,11 @@ export default function Home() {
         label: t('sidebarTab.scene'),
         component: () => null,
       },
+      {
+        id: 'settings',
+        label: t('sidebarTab.settings'),
+        component: () => null,
+      },
     ],
     [t],
   )

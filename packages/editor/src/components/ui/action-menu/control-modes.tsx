@@ -6,6 +6,7 @@ import { useViewer } from '@pascal-app/viewer'
 import { type LucideIcon, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from './../../../lib/utils'
+import { useI18n } from './../../../i18n'
 import useEditor from './../../../store/use-editor'
 import { ActionButton } from './action-button'
 
@@ -24,7 +25,7 @@ type ControlConfig = {
   icon?: LucideIcon
   iconifyIcon?: string
   imageSrc?: string
-  label: string
+  labelKey: string
   shortcut?: string
   color: string
   activeColor: string
@@ -35,7 +36,7 @@ const controls: ControlConfig[] = [
   {
     id: 'select',
     imageSrc: '/icons/select.png',
-    label: 'Select',
+    labelKey: 'controls.select',
     shortcut: 'V',
     color: 'hover:bg-blue-500/20 hover:text-blue-400',
     activeColor: 'bg-blue-500/20 text-blue-400',
@@ -43,21 +44,21 @@ const controls: ControlConfig[] = [
   {
     id: 'box-select',
     iconifyIcon: 'mdi:select-drag',
-    label: 'Box select',
+    labelKey: 'controls.boxSelect',
     color: 'hover:bg-white/5',
     activeColor: 'bg-white/10 hover:bg-white/10',
   },
   {
     id: 'site-edit',
     imageSrc: '/icons/site.png',
-    label: 'Edit site',
+    labelKey: 'controls.siteEditEnter',
     color: 'hover:bg-white/5',
     activeColor: 'bg-white/10 hover:bg-white/10',
   },
   {
     id: 'build',
     imageSrc: '/icons/build.png',
-    label: 'Build',
+    labelKey: 'controls.build',
     shortcut: 'B',
     color: 'hover:bg-green-500/20 hover:text-green-400',
     activeColor: 'bg-green-500/20 text-green-400',
@@ -65,7 +66,7 @@ const controls: ControlConfig[] = [
   {
     id: 'material-paint',
     imageSrc: '/icons/paint.png',
-    label: 'Material Paint',
+    labelKey: 'controls.materialPaint',
     shortcut: 'P',
     color: 'hover:bg-amber-500/20 hover:text-amber-400',
     activeColor: 'bg-amber-500/20 text-amber-400',
@@ -73,7 +74,7 @@ const controls: ControlConfig[] = [
   {
     id: 'furnish',
     imageSrc: '/icons/couch.png',
-    label: 'Furnish',
+    labelKey: 'controls.furnish',
     shortcut: 'F',
     color: 'hover:bg-green-500/20 hover:text-green-400',
     activeColor: 'bg-green-500/20 text-green-400',
@@ -81,7 +82,7 @@ const controls: ControlConfig[] = [
   {
     id: 'zone',
     imageSrc: '/icons/zone.png',
-    label: 'Zone',
+    labelKey: 'controls.zoneLayer',
     shortcut: 'Z',
     color: 'hover:bg-green-500/20 hover:text-green-400',
     activeColor: 'bg-green-500/20 text-green-400',
@@ -89,7 +90,7 @@ const controls: ControlConfig[] = [
   {
     id: 'delete',
     icon: Trash2,
-    label: 'Delete',
+    labelKey: 'controls.delete',
     shortcut: 'D',
     color: 'hover:bg-red-500/20 hover:text-red-400',
     activeColor: 'bg-red-500/20 text-red-400',
@@ -97,6 +98,7 @@ const controls: ControlConfig[] = [
 ]
 
 export function ControlModes() {
+  const { t } = useI18n()
   const mode = useEditor((state) => state.mode)
   const phase = useEditor((state) => state.phase)
   const selectionTool = useEditor((state) => state.floorplanSelectionTool)
@@ -211,6 +213,15 @@ export function ControlModes() {
         const isActive = getIsActive(c.id)
         const isDisabled = isSiteButton && !canEnterSiteEdit
 
+        const label =
+          isSiteButton && isActive
+            ? t('controls.siteEditExit')
+            : isSiteButton && canEnterSiteEdit
+              ? t('controls.siteEditEnter')
+              : isSiteButton
+                ? t('controls.siteEditUnavailable')
+                : t(c.labelKey)
+
         return (
           <ActionButton
             className={cn(
@@ -228,23 +239,21 @@ export function ControlModes() {
             )}
             disabled={isDisabled}
             key={c.id}
-            label={
-              isSiteButton
-                ? isActive
-                  ? 'Exit site editing'
-                  : canEnterSiteEdit
-                    ? 'Edit site'
-                    : 'Site editing (ground level only)'
-                : c.label
-            }
+            label={label}
             onClick={() => handleClick(c.id)}
             shortcut={c.shortcut}
             size="icon"
             variant="ghost"
+            {...(c.id === 'site-edit'
+              ? { 'data-tutorial-target': 'tutorial-site-edit' as const }
+              : {})}
+            {...(c.id === 'build'
+              ? { 'data-tutorial-target': 'tutorial-structure-build' as const }
+              : {})}
           >
             {c.imageSrc ? (
               <Image
-                alt={c.label}
+                alt={label}
                 className={cn(
                   'h-[28px] w-[28px] object-contain transition-[opacity,filter] duration-200',
                   isSiteButton

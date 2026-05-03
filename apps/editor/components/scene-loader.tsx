@@ -5,12 +5,14 @@ import {
   Editor,
   type SceneGraph,
   type SidebarTab,
+  useI18n,
   ViewerToolbarLeft,
   ViewerToolbarRight,
 } from '@pascal-app/editor'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ComponentType } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface SceneMeta {
   id: string
@@ -24,14 +26,6 @@ export interface SceneMeta {
   sizeBytes: number
   nodeCount: number
 }
-
-const SIDEBAR_TABS: (SidebarTab & { component: React.ComponentType })[] = [
-  {
-    id: 'site',
-    label: 'Scene',
-    component: () => null, // Built-in SitePanel handles this
-  },
-]
 
 interface SceneLoaderProps {
   initialScene: SceneGraph
@@ -60,6 +54,22 @@ function sceneGraphSignature(graph: SceneGraphWithCollections): string {
 }
 
 export function SceneLoader({ initialScene, meta }: SceneLoaderProps) {
+  const { t } = useI18n()
+  const sidebarTabs = useMemo(
+    (): (SidebarTab & { component: ComponentType })[] => [
+      {
+        id: 'site',
+        label: t('sidebarTab.scene'),
+        component: () => null,
+      },
+      {
+        id: 'settings',
+        label: t('sidebarTab.settings'),
+        component: () => null,
+      },
+    ],
+    [t],
+  )
   const router = useRouter()
   const versionRef = useRef(meta.version)
   const lastRemoteGraphJsonRef = useRef<string | null>(null)
@@ -199,7 +209,10 @@ export function SceneLoader({ initialScene, meta }: SceneLoaderProps) {
         onSave={handleSave}
         onThumbnailCapture={handleThumb}
         projectId={meta.projectId ?? 'default'}
-        sidebarTabs={SIDEBAR_TABS}
+        settingsPanelProps={{ tutorialSceneKey: meta.id }}
+        sidebarTabs={sidebarTabs}
+        tutorialOfferOnMount={meta.nodeCount < 40}
+        tutorialSceneKey={meta.id}
         viewerToolbarLeft={<ViewerToolbarLeft />}
         viewerToolbarRight={<ViewerToolbarRight />}
       />

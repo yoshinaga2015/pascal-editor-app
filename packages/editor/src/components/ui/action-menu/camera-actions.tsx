@@ -2,9 +2,11 @@
 
 import { emitter } from '@pascal-app/core'
 import Image from 'next/image'
+import { useI18n } from './../../../i18n'
 import { ActionButton } from './action-button'
 
 export function CameraActions({ hideOrbit = false }: { hideOrbit?: boolean }) {
+  const { t } = useI18n()
   const goToTopView = () => {
     emitter.emit('camera-controls:top-view')
   }
@@ -24,13 +26,13 @@ export function CameraActions({ hideOrbit = false }: { hideOrbit?: boolean }) {
           {/* Orbit CCW */}
           <ActionButton
             className="group hover:bg-white/5"
-            label="Orbit Left"
+            label={t('overlay.orbitLeft')}
             onClick={orbitCCW}
             size="icon"
             variant="ghost"
           >
             <Image
-              alt="Orbit Left"
+              alt={t('overlay.orbitLeft')}
               className="h-[28px] w-[28px] -scale-x-100 object-contain opacity-70 transition-opacity group-hover:opacity-100"
               height={28}
               src="/icons/rotate.png"
@@ -41,13 +43,13 @@ export function CameraActions({ hideOrbit = false }: { hideOrbit?: boolean }) {
           {/* Orbit CW */}
           <ActionButton
             className="group hover:bg-white/5"
-            label="Orbit Right"
+            label={t('overlay.orbitRight')}
             onClick={orbitCW}
             size="icon"
             variant="ghost"
           >
             <Image
-              alt="Orbit Right"
+              alt={t('overlay.orbitRight')}
               className="h-[28px] w-[28px] object-contain opacity-70 transition-opacity group-hover:opacity-100"
               height={28}
               src="/icons/rotate.png"
@@ -60,13 +62,13 @@ export function CameraActions({ hideOrbit = false }: { hideOrbit?: boolean }) {
       {/* Top View */}
       <ActionButton
         className="group hover:bg-white/5"
-        label="Top View"
+        label={t('overlay.topView')}
         onClick={goToTopView}
         size="icon"
         variant="ghost"
       >
         <Image
-          alt="Top View"
+          alt={t('overlay.topView')}
           className="h-[28px] w-[28px] object-contain opacity-70 transition-opacity group-hover:opacity-100"
           height={28}
           src="/icons/topview.png"

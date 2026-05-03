@@ -19,6 +19,10 @@ import {
 } from './../../../../../components/ui/primitives/dialog'
 import { Switch } from './../../../../../components/ui/primitives/switch'
 import useEditor, { selectDefaultBuildingAndLevel } from './../../../../../store/use-editor'
+import { applySceneGraphToEditor } from './../../../../../lib/scene'
+import { createTutorialSeedGraph } from './../../../../../tutorial/seed-graph'
+import { useTutorialStore } from './../../../../../tutorial/use-tutorial-store'
+import { useI18n } from './../../../../../i18n'
 import { AudioSettingsDialog } from './audio-settings-dialog'
 import { KeyboardShortcutsDialog } from './keyboard-shortcuts-dialog'
 
@@ -168,12 +172,15 @@ export interface SettingsPanelProps {
     field: 'isPrivate' | 'showScansPublic' | 'showGuidesPublic',
     value: boolean,
   ) => Promise<void>
+  /** Cloud scene id (or host-defined key) for tutorial persistence */
+  tutorialSceneKey?: string | null
 }
 
 export function SettingsPanel({
   projectId,
   projectVisibility,
   onVisibilityChange,
+  tutorialSceneKey,
 }: SettingsPanelProps = {}) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const nodes = useScene((state) => state.nodes)
@@ -184,6 +191,8 @@ export function SettingsPanel({
   const exportScene = useViewer((state) => state.exportScene)
   const showGrid = useViewer((state) => state.showGrid)
   const setPhase = useEditor((state) => state.setPhase)
+  const beginTutorial = useTutorialStore((state) => state.beginTutorial)
+  const { t } = useI18n()
   const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false)
   const sceneGraphValue = useMemo(
     () => buildSceneGraphValue(nodes as Record<string, SceneNode>, rootNodeIds),
@@ -257,6 +266,13 @@ export function SettingsPanel({
     value: boolean,
   ) => {
     await onVisibilityChange?.(field, value)
+  }
+
+  const handleStartTutorial = () => {
+    const key =
+      tutorialSceneKey ?? useViewer.getState().projectId ?? 'local'
+    beginTutorial(key)
+    applySceneGraphToEditor(createTutorialSeedGraph())
   }
 
   return (
@@ -392,6 +408,17 @@ export function SettingsPanel({
       <div className="space-y-2">
         <label className="font-medium text-muted-foreground text-xs uppercase">Keyboard</label>
         <KeyboardShortcutsDialog />
+      </div>
+
+      {/* Guided tutorial */}
+      <div className="space-y-2">
+        <label className="font-medium text-muted-foreground text-xs uppercase">
+          {t('tutorial.settings.section')}
+        </label>
+        <p className="text-muted-foreground text-xs">{t('tutorial.settings.description')}</p>
+        <Button className="w-full justify-start gap-2" onClick={handleStartTutorial} variant="outline">
+          {t('tutorial.settings.start')}
+        </Button>
       </div>
 
       {/* Scene Graph */}
