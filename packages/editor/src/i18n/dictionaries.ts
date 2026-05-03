@@ -312,7 +312,7 @@ export const ja: Record<string, string> = {
   'tutorial.validation.openingMissing': 'ドアなどの出入口が見つかりません。',
   'tutorial.validation.spawnMissing': 'この階にスポーン位置がありません。',
   'tutorial.validation.walkthroughNotStarted':
-    '「歩いてみる」（ウォークスルー）をまだ始めていません。ツールバーなどからオンにしてください。',
+    '「歩いてみる」（ウォークスルー）をまだ始めていません。ツールバーからオンにしてください。',
   'tutorial.validation.walkthroughStillActive':
     'ウォークスルーを終了してください（Esc）。終えてから平面表示に切り替えられます。',
   'tutorial.validation.floorplanSwitchView':
