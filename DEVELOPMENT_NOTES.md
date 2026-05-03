@@ -38,3 +38,20 @@
 1. **同期の実行場所:** マージと push は GitHub Actions 上で実施（ローカル認証に依存しない）。Mac の Update は引き続き `origin` の pull のみ。
 2. **Issue の粒度:** マージ失敗のたびに新規 Issue（ラベルは未設定・作成権限のみで API エラーを避ける）。
 3. **定期実行:** 既定はオフ（コメントアウト）。有効化するとノイズ・競合が増えるため README で注意喚起する。
+
+## 2026-05-03 — Mac から GitHub Actions を起動
+
+### 変更の具体
+
+- `mac-launcher/Sync upstream on GitHub.app` を追加（`gh workflow run sync-from-upstream.yml`）。
+- 既定リポジトリ `yoshinaga2015/pascal-editor-app`、`~/Library/Application Support/PascalEditor/github-repo.txt` で上書き可能。
+- `mac-launcher/README.md` とルート `README.md` を更新。
+
+### 意図
+
+- ブラウザで Actions を開かずに、ダブルクリックで上流同期ワークフローをキューに入れる。
+
+### ADR
+
+1. **認証:** PAT をランチャーに埋め込まず、ユーザーが既に使っている **GitHub CLI（gh）** に委ねる。
+2. **完了待ちしない:** `workflow_dispatch` は非同期のため、ブラウザで Actions を開いてユーザーが進捗確認。続けて **Update** は別操作。

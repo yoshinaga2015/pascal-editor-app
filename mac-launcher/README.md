@@ -7,16 +7,26 @@
 | アプリ | 役割 |
 |--------|------|
 | **Pascal Editor** | `bun dev` をバックグラウンドで開始し、ブラウザで http://localhost:3002 を開きます。 |
-| **Update Pascal Editor** | `git pull --ff-only` のあと `bun install` を実行し、**GitHub 上のこのフォーク**の変更を取り込みます。オリジナル [pascalorg/editor](https://github.com/pascalorg/editor) の新着まで反映したいときは、先に GitHub の **Actions → Sync from upstream** を実行してください（リポジトリ直下の README 参照）。 |
+| **Update Pascal Editor** | `git pull --ff-only` のあと `bun install` を実行し、**GitHub 上のこのフォーク**の変更を取り込みます。オリジナル [pascalorg/editor](https://github.com/pascalorg/editor) の新着まで反映したいときは、先に **Sync upstream on GitHub** を実行するか、GitHub の **Actions → Sync from upstream** を手動で実行してください。 |
+| **Sync upstream on GitHub** | GitHub Actions の **Sync from upstream** を **`gh workflow run`** でキューに入れます（要 [GitHub CLI](https://cli.github.com/) と `gh auth login`）。実行後に Actions のページをブラウザで開きます。**その後** **Update Pascal Editor** でローカルを更新してください。 |
 | **Stop Pascal Editor** | ポート 3002 で動いている開発サーバーを停止します。 |
+
+### GitHub 同期アプリのセットアップ（初回のみ）
+
+1. ターミナルで `brew install gh`（または [公式](https://cli.github.com/) の手順）
+2. `gh auth login` — **このフォークに書き込めるアカウント**で、`repo` を許可
+3. フォークの `owner/repo` を変えたい場合は、次に **一行だけ**書いて保存:  
+   `~/Library/Application Support/PascalEditor/github-repo.txt`  
+   （未作成時は既定で `yoshinaga2015/pascal-editor-app` を使います）
 
 ## 使い方
 
 1. **初回のみ**: [Bun](https://bun.sh/) と **Git**（Xcode Command Line Tools）が Mac に入っていることを確認してください。
 2. Finder で **`mac-launcher`** フォルダを開き、**Pascal Editor** をダブルクリックします。
 3. ブラウザが開けばそのまま編集できます。
-4. アップデートがあったら **Update Pascal Editor** をダブルクリックします（1 ボタン相当）。
-5. 終わったら **Stop Pascal Editor** でサーバーを止められます（省略するとバックグラウンドで動き続けます）。
+4. 上流の新着まで取り込みたいときは **Sync upstream on GitHub** を実行し（完了まで少し待つ）、続けて **Update Pascal Editor** を実行します。
+5. フォークの更新だけでよいときは **Update Pascal Editor** のみで構いません。
+6. 終わったら **Stop Pascal Editor** でサーバーを止められます（省略するとバックグラウンドで動き続けます）。
 
 ## Dock や Applications に置く
 

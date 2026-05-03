@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+
+_LAUNCHER_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "${_LAUNCHER_DIR}/../Resources/path-env.sh"
+
+CONFIG_DIR="${HOME}/Library/Application Support/PascalEditor"
+REPO_FILE="${CONFIG_DIR}/github-repo.txt"
+DEFAULT_REPO="yoshinaga2015/pascal-editor-app"
+WORKFLOW_FILE="sync-from-upstream.yml"
+
+alert() {
+  osascript -e "display alert \"$1\" message \"$2\" as informational"
+}
+
+mkdir -p "${CONFIG_DIR}"
+REPO_FULL=""
+if [[ -f "${REPO_FILE}" ]]; then
+  REPO_FULL="$(tr -d ' \n\r\t' <"${REPO_FILE}" | head -c 200)"
+fi
+[[ -z "${REPO_FULL}" ]] && REPO_FULL="${DEFAULT_REPO}"
+
+if ! command -v gh >/dev/null 2>&1; then
+  alert "Sync upstream on GitHub" "GitHub CLI（gh）が見つかりません。
+
+Homebrew の例:
+  brew install gh
+
+続けてターミナルで:
+  gh auth login
+
+repo スコープでログインしてください。"
+  exit 1
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+  alert "Sync upstream on GitHub" "gh の認証がありません。ターミナルで次を実行してください:
+
+gh auth login"
+  exit 1
+fi
+
+BUTTON="$(
+  osascript <<APPLESCRIPT
+tell application "System Events"
+  activate
+end tell
+button returned of (display dialog "GitHub Actions「Sync from upstream」を実行しますか？
+
+リポジトリ: ${REPO_FULL}" buttons {"キャンセル", "実行"} default button "実行" with title "Sync upstream on GitHub")
+APPLESCRIPT
+)" || exit 0
+
+[[ "${BUTTON}" == "実行" ]] || exit 0
+
+if ! gh workflow run "${WORKFLOW_FILE}" --repo "${REPO_FULL}" --ref main 2>"${CONFIG_DIR}/gh-sync-last.err"; then
+  alert "Sync upstream on GitHub" "ワークフローを起動できませんでした。
+
+リポジトリを変えた場合は次に owner/repo 形式で一行保存:
+${REPO_FILE}
+
+詳細ログ:
+${CONFIG_DIR}/gh-sync-last.err"
+  exit 1
+fi
+
+open "https://github.com/${REPO_FULL}/actions/workflows/${WORKFLOW_FILE}"
+
+osascript -e 'display notification "Sync from upstream をキューに入れました（Actions で確認）。" with title "Pascal Editor"' 2>/dev/null || true
