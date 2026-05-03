@@ -81,6 +81,35 @@ ensure_repo_root() {
   prompt_repo_and_save
 }
 
+# リポジトリ内の mac-launcher/*.app を Applications 配下へコピーする。
+# Dock が ~/Applications/PascalEditor の .app を指していれば、リポジトリを pull しても同じアイコンから最新ランチャーが使える。
+_sync_bundle_dest_realpath() {
+  python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1" 2>/dev/null \
+    || readlink -f "$1" 2>/dev/null \
+    || printf '%s' "$1"
+}
+
+sync_launchers_to_applications_folder() {
+  local src="${REPO_ROOT}/mac-launcher"
+  local dest="${HOME}/Applications/PascalEditor"
+  [[ -d "${src}" ]] || return 0
+  mkdir -p "${dest}"
+  local app name my rp_installed rp_running
+  my="$(_sync_bundle_dest_realpath "${MY_APP_ROOT}")"
+  shopt -s nullglob
+  for app in "${src}"/*.app; do
+    name="$(basename "${app}")"
+    rp_installed="$(_sync_bundle_dest_realpath "${dest}/${name}")"
+    rp_running="${my}"
+    if [[ -n "${rp_running}" && "${rp_installed}" == "${rp_running}" ]]; then
+      echo "(skip rsync: running Update from installed copy ${name})" >>"${LAST_LOG}"
+      continue
+    fi
+    rsync -a --delete "${app}/" "${dest}/${name}/" || return 1
+  done
+  shopt -u nullglob
+}
+
 if ! command -v bun >/dev/null 2>&1; then
   alert "Update Pascal Editor" "Bun が見つかりません。https://bun.sh の公式手順でインストールし、~/.bun/bin に bun があることを確認してください。"
   exit 1
@@ -93,6 +122,9 @@ fi
 
 REPO_ROOT="$(ensure_repo_root)"
 cd "${REPO_ROOT}"
+
+# 実行中の .app バンドルのパス（Applications にインストールした Update が自分自身を rsync で壊さないようにする）
+MY_APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 OUT="$(mktemp)"
 if git pull --ff-only >>"${OUT}" 2>&1; then
@@ -107,7 +139,13 @@ if bun install >>"${OUT}" 2>&1; then
   mkdir -p "${CONFIG_DIR}"
   cp "${OUT}" "${LAST_LOG}"
   rm -f "${OUT}"
-  alert "Update Pascal Editor" "更新が完了しました（git pull と bun install）。詳細ログ: ${LAST_LOG}"
+  SYNC_NOTE=""
+  if sync_launchers_to_applications_folder >>"${LAST_LOG}" 2>&1; then
+    SYNC_NOTE=" Mac ランチャーを ${HOME}/Applications/PascalEditor に同期しました。Dock はこのフォルダの .app を登録すると、アップデート後も同じ場所から起動できます。"
+  else
+    SYNC_NOTE=" ランチャーの同期に失敗しました（ログ参照）。リポジトリ内 mac-launcher の .app を直接ダブルクリックしてください。"
+  fi
+  alert "Update Pascal Editor" "更新が完了しました（git pull と bun install）。${SYNC_NOTE}詳細ログ: ${LAST_LOG}"
 else
   fail_log "Update Pascal Editor" "bun install に失敗しました。詳細はログを確認してください。"
   rm -f "${OUT}"

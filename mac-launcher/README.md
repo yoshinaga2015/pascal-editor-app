@@ -30,7 +30,8 @@
 
 ## Dock や Applications に置く
 
-- **そのままコピー**: `mac-launcher` 内の各 `.app` を **Dock** にドラッグするか、`アプリケーション` フォルダへコピーして使えます。
+- **推奨:** **Update Pascal Editor** を一度実行すると、`~/Applications/PascalEditor/` に各 `.app` が自動コピーされます。**Dock はこのフォルダの .app を登録**すると、リポジトリを更新したあとも **次回 Update でコピーが上書き**され、同じアイコンから最新ランチャーが使えます。
+- **リポジトリ内のまま:** `mac-launcher` 内の `.app` を Dock に置いても問題ありません。
 - **保存される設定**: リポジトリの場所は  
   `~/Library/Application Support/PascalEditor/repo-path.txt`  
   に記録されます。`.app` だけを別の場所に移しても、このファイルがあれば同じフォルダを参照します。
@@ -48,5 +49,7 @@
 
 ## 注意
 
+- **Git と mac-launcher:** 上流（pascalorg/editor）に `mac-launcher/` が無い限り、マージや pull でこのフォーク独自のランチャーが消えることは通常ありません。Dock を **`~/Applications/PascalEditor`** の `.app` にすると、Update がリポジトリ内の最新ランチャーを再コピーし続けます。
+- **Update を Applications から実行したとき:** 実行中の **Update Pascal Editor.app** 自体は `rsync` で上書きしません（クラッシュ防止）。そのバンドルだけ古いままのことがあるので、必要なら **リポジトリ内 `mac-launcher/Update Pascal Editor.app`** を一度ダブルクリックしてから、再度 Applications の Update を使ってください。
 - **Update** は `git pull --ff-only` です。ローカルでコミット済みの変更と競合すると失敗します。そのときは開発者に相談するか、ターミナルで解消してください。
 - 起動済みのときに **Pascal Editor** をもう一度実行すると、サーバーは増やさずブラウザだけ開きます。

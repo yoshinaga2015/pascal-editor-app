@@ -55,3 +55,19 @@
 
 1. **認証:** PAT をランチャーに埋め込まず、ユーザーが既に使っている **GitHub CLI（gh）** に委ねる。
 2. **完了待ちしない:** `workflow_dispatch` は非同期のため、ブラウザで Actions を開いてユーザーが進捗確認。続けて **Update** は別操作。
+
+## 2026-05-03 — Update で Applications にランチャーを再同期
+
+### 変更の具体
+
+- `Update Pascal Editor.app` の成功時に `~/Applications/PascalEditor/*.app` へ `rsync`。
+- README に Dock の推奨場所と Git で mac-launcher が通常残る旨を追記。
+
+### 意図
+
+- リポジトリを pull しても、Dock が指す `.app` がリポジトリ内の古いパスに固定され続けないようにする。
+
+### ADR
+
+1. **コピー先:** `~/Applications/PascalEditor` に限定し、システム全体の Applications と混ぜない。
+2. **`rsync --delete`:** バンドル内で削除されたファイルもミラーに反映する。
