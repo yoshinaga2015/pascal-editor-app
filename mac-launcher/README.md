@@ -7,7 +7,7 @@
 | アプリ | 役割 |
 |--------|------|
 | **Pascal Editor** | `bun dev` をバックグラウンドで開始し、ブラウザで http://localhost:3002 を開きます。 |
-| **Update Pascal Editor** | `git pull --ff-only` のあと `bun install` を実行し、GitHub の変更を取り込みます。 |
+| **Update Pascal Editor** | `git pull --ff-only` のあと `bun install` を実行し、**GitHub 上のこのフォーク**の変更を取り込みます。オリジナル [pascalorg/editor](https://github.com/pascalorg/editor) の新着まで反映したいときは、先に GitHub の **Actions → Sync from upstream** を実行してください（リポジトリ直下の README 参照）。 |
 | **Stop Pascal Editor** | ポート 3002 で動いている開発サーバーを停止します。 |
 
 ## 使い方

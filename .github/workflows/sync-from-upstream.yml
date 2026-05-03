@@ -1,0 +1,67 @@
+# 上流 (pascalorg/editor) の main をこのフォークの main に取り込む。
+# - 手動: Actions → 「Sync from upstream」→ Run workflow
+# - 定期: 下記 schedule のコメントを外すと有効（ノイズや競合に注意）
+
+name: Sync from upstream
+
+on:
+  workflow_dispatch:
+  # 毎週日曜 15:00 UTC（日曜24時 JST 頃）に自動実行したい場合は次の2行のコメントを外す
+  # schedule:
+  #   - cron: "0 15 * * 0"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/pascalorg/editor.git 2>/dev/null || true
+          git fetch upstream main
+
+      - name: Merge upstream/main into main
+        id: merge
+        continue-on-error: true
+        run: |
+          git merge upstream/main --no-edit -m "chore: merge upstream/main (${{ github.run_id }})"
+
+      - name: Push to origin (fork)
+        if: steps.merge.outcome == 'success'
+        run: git push origin main
+
+      - name: Create issue when merge failed (e.g. conflicts)
+        if: steps.merge.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[sync] upstream のマージに失敗しました (${new Date().toISOString().slice(0, 10)})`,
+              body: [
+                '自動同期ワークフローが **upstream/main** を `main` にマージできませんでした（コンフリクトやローカル特有の変更が原因のことがあります）。',
+                '',
+                '### 次のステップ（例）',
+                '- ローカルで `git fetch upstream`、`git merge upstream/main`（または rebase）し、コンフリクトを解消して `git push origin main`',
+                '- 必要なら上流の変更意図を確認: https://github.com/pascalorg/editor',
+                '',
+                `[ワークフロー実行ログ](${runUrl})`,
+                '',
+                `_workflow: ${process.env.GITHUB_WORKFLOW}_`,
+              ].join('\n'),
+            });
