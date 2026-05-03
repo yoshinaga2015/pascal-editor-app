@@ -302,6 +302,17 @@ export function validateWalkthrough(ctx: TutorialValidationContext): MilestoneRe
   return ok()
 }
 
+/** Step 8 — 2D / split floor plan view (after exiting walkthrough). */
+export function validateFloorplanView(ctx: TutorialValidationContext): MilestoneResult {
+  if (ctx.isFirstPersonMode) {
+    return fail('tutorial.validation.walkthroughStillActive')
+  }
+  if (ctx.viewMode !== '2d' && ctx.viewMode !== 'split') {
+    return fail('tutorial.validation.floorplanSwitchView')
+  }
+  return ok()
+}
+
 export function validateIntro(): MilestoneResult {
   return ok()
 }

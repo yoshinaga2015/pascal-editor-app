@@ -1,60 +1,67 @@
 // @ts-expect-error — bun:test is provided by the Bun runtime.
-import { describe, expect, test } from 'bun:test'
-import type { AnyNode } from '@pascal-app/core/schema'
-import { BuildingNode, LevelNode, SpawnNode, WallNode } from '@pascal-app/core/schema'
-import { createTutorialSeedGraph } from './seed-graph'
+import { describe, expect, test } from "bun:test";
+import type { AnyNode } from "@pascal-app/core/schema";
+import {
+  BuildingNode,
+  LevelNode,
+  SpawnNode,
+  WallNode,
+} from "@pascal-app/core/schema";
+import { createTutorialSeedGraph } from "./seed-graph";
 import {
   validateBuildingAndLevel,
   validateClosedRoomWalls,
   validateClosedSite,
+  validateFloorplanView,
   validateSpawn,
   validateWalkthrough,
-} from './validators'
-import { wallsFormSimpleClosedLoop } from './wall-loop'
+} from "./validators";
+import { wallsFormSimpleClosedLoop } from "./wall-loop";
 
 function tutorialSeedGraph() {
-  return createTutorialSeedGraph()
+  return createTutorialSeedGraph();
 }
 
-describe('tutorial validators', () => {
-  test('seed graph: property line open → site milestone fails', () => {
-    const graph = tutorialSeedGraph()
-    const nodes = graph.nodes as Record<string, AnyNode>
+describe("tutorial validators", () => {
+  test("seed graph: property line open → site milestone fails", () => {
+    const graph = tutorialSeedGraph();
+    const nodes = graph.nodes as Record<string, AnyNode>;
     const res = validateClosedSite({
       nodes,
       rootNodeIds: graph.rootNodeIds,
       buildingId: null,
       levelId: null,
       isFirstPersonMode: false,
-    })
-    expect(res.ok).toBe(false)
+      viewMode: "3d",
+    });
+    expect(res.ok).toBe(false);
     if (!res.ok) {
-      expect(res.reasonKey).toBe('tutorial.validation.siteNotClosed')
+      expect(res.reasonKey).toBe("tutorial.validation.siteNotClosed");
     }
-  })
+  });
 
-  test('closed rectangle site passes area check', () => {
+  test("closed rectangle site passes area check", () => {
     const level = LevelNode.parse({
-      id: 'level_t',
-      parentId: 'building_t',
+      id: "level_t",
+      parentId: "building_t",
       level: 0,
       children: [],
-    })
+    });
     const building = BuildingNode.parse({
-      id: 'building_t',
-      parentId: 'site_t',
+      id: "building_t",
+      parentId: "site_t",
       children: [level.id],
-    })
+    });
     const site = {
-      object: 'node',
-      id: 'site_t',
-      type: 'site',
+      object: "node",
+      id: "site_t",
+      type: "site",
       parentId: null,
       visible: true,
       metadata: {},
       children: [building.id],
       polygon: {
-        type: 'polygon',
+        type: "polygon",
         points: [
           [0, 0],
           [10, 0],
@@ -63,44 +70,45 @@ describe('tutorial validators', () => {
           [0, 0],
         ],
       },
-    } as unknown as AnyNode
+    } as unknown as AnyNode;
     const nodes: Record<string, AnyNode> = {
       [site.id]: site,
       [building.id]: building,
       [level.id]: level,
-    }
+    };
     const ok = validateClosedSite({
       nodes,
       rootNodeIds: [site.id],
       buildingId: building.id,
       levelId: level.id,
       isFirstPersonMode: false,
-    })
-    expect(ok.ok).toBe(true)
-  })
+      viewMode: "3d",
+    });
+    expect(ok.ok).toBe(true);
+  });
 
-  test('rectangle site without duplicate closing vertex passes (editor convention)', () => {
+  test("rectangle site without duplicate closing vertex passes (editor convention)", () => {
     const level = LevelNode.parse({
-      id: 'level_impl',
-      parentId: 'building_impl',
+      id: "level_impl",
+      parentId: "building_impl",
       level: 0,
       children: [],
-    })
+    });
     const building = BuildingNode.parse({
-      id: 'building_impl',
-      parentId: 'site_impl',
+      id: "building_impl",
+      parentId: "site_impl",
       children: [level.id],
-    })
+    });
     const site = {
-      object: 'node',
-      id: 'site_impl',
-      type: 'site',
+      object: "node",
+      id: "site_impl",
+      type: "site",
       parentId: null,
       visible: true,
       metadata: {},
       children: [building.id],
       polygon: {
-        type: 'polygon',
+        type: "polygon",
         points: [
           [0, 0],
           [12, 0],
@@ -108,44 +116,45 @@ describe('tutorial validators', () => {
           [0, 10],
         ],
       },
-    } as unknown as AnyNode
+    } as unknown as AnyNode;
     const nodes: Record<string, AnyNode> = {
       [site.id]: site,
       [building.id]: building,
       [level.id]: level,
-    }
+    };
     const ok = validateClosedSite({
       nodes,
       rootNodeIds: [site.id],
       buildingId: building.id,
       levelId: level.id,
       isFirstPersonMode: false,
-    })
-    expect(ok.ok).toBe(true)
-  })
+      viewMode: "3d",
+    });
+    expect(ok.ok).toBe(true);
+  });
 
-  test('building + selected level passes G2', () => {
+  test("building + selected level passes G2", () => {
     const level = LevelNode.parse({
-      id: 'level_g2',
-      parentId: 'building_g2',
+      id: "level_g2",
+      parentId: "building_g2",
       level: 0,
       children: [],
-    })
+    });
     const building = BuildingNode.parse({
-      id: 'building_g2',
-      parentId: 'site_g2',
+      id: "building_g2",
+      parentId: "site_g2",
       children: [level.id],
-    })
+    });
     const site = {
-      object: 'node',
-      id: 'site_g2',
-      type: 'site',
+      object: "node",
+      id: "site_g2",
+      type: "site",
       parentId: null,
       visible: true,
       metadata: {},
       children: [building.id],
       polygon: {
-        type: 'polygon',
+        type: "polygon",
         points: [
           [0, 0],
           [10, 0],
@@ -154,29 +163,46 @@ describe('tutorial validators', () => {
           [0, 0],
         ],
       },
-    } as unknown as AnyNode
+    } as unknown as AnyNode;
     const nodes: Record<string, AnyNode> = {
       [site.id]: site,
       [building.id]: building,
       [level.id]: level,
-    }
+    };
     const res = validateBuildingAndLevel({
       nodes,
       rootNodeIds: [site.id],
       buildingId: building.id,
       levelId: level.id,
       isFirstPersonMode: false,
-    })
-    expect(res.ok).toBe(true)
-  })
+      viewMode: "3d",
+    });
+    expect(res.ok).toBe(true);
+  });
 
-  test('four walls square forms closed loop', () => {
-    const wallA = WallNode.parse({ parentId: 'level_wallloop', start: [0, 0], end: [4, 0] })
-    const wallB = WallNode.parse({ parentId: 'level_wallloop', start: [4, 0], end: [4, 4] })
-    const wallC = WallNode.parse({ parentId: 'level_wallloop', start: [4, 4], end: [0, 4] })
-    const wallD = WallNode.parse({ parentId: 'level_wallloop', start: [0, 4], end: [0, 0] })
-    const walls = [wallA, wallB, wallC, wallD]
-    expect(wallsFormSimpleClosedLoop(walls)).toBe(true)
+  test("four walls square forms closed loop", () => {
+    const wallA = WallNode.parse({
+      parentId: "level_wallloop",
+      start: [0, 0],
+      end: [4, 0],
+    });
+    const wallB = WallNode.parse({
+      parentId: "level_wallloop",
+      start: [4, 0],
+      end: [4, 4],
+    });
+    const wallC = WallNode.parse({
+      parentId: "level_wallloop",
+      start: [4, 4],
+      end: [0, 4],
+    });
+    const wallD = WallNode.parse({
+      parentId: "level_wallloop",
+      start: [0, 4],
+      end: [0, 0],
+    });
+    const walls = [wallA, wallB, wallC, wallD];
+    expect(wallsFormSimpleClosedLoop(walls)).toBe(true);
     expect(
       validateClosedRoomWalls({
         nodes: {} as Record<string, unknown>,
@@ -184,140 +210,145 @@ describe('tutorial validators', () => {
         buildingId: null,
         levelId: null,
         isFirstPersonMode: false,
+        viewMode: "3d",
       }).ok,
-    ).toBe(false)
+    ).toBe(false);
 
     const level = LevelNode.parse({
-      id: 'level_wallloop',
-      parentId: 'building_wallloop',
+      id: "level_wallloop",
+      parentId: "building_wallloop",
       level: 0,
       children: walls.map((w) => w.id),
-    })
+    });
     const nodes: Record<string, AnyNode> = {
       level_wallloop: level,
       ...Object.fromEntries(walls.map((w) => [w.id, w])),
-    }
+    };
     const res = validateClosedRoomWalls({
       nodes,
       rootNodeIds: [],
       buildingId: null,
-      levelId: 'level_wallloop',
+      levelId: "level_wallloop",
       isFirstPersonMode: false,
-    })
-    expect(res.ok).toBe(true)
-  })
+      viewMode: "3d",
+    });
+    expect(res.ok).toBe(true);
+  });
 
-  test('open polyline walls fail closed loop', () => {
+  test("open polyline walls fail closed loop", () => {
     const walls = [
-      WallNode.parse({ parentId: 'lvl', start: [0, 0], end: [4, 0] }),
-      WallNode.parse({ parentId: 'lvl', start: [4, 0], end: [4, 4] }),
-      WallNode.parse({ parentId: 'lvl', start: [4, 4], end: [0, 4] }),
-    ]
-    expect(wallsFormSimpleClosedLoop(walls)).toBe(false)
-  })
+      WallNode.parse({ parentId: "lvl", start: [0, 0], end: [4, 0] }),
+      WallNode.parse({ parentId: "lvl", start: [4, 0], end: [4, 4] }),
+      WallNode.parse({ parentId: "lvl", start: [4, 4], end: [0, 4] }),
+    ];
+    expect(wallsFormSimpleClosedLoop(walls)).toBe(false);
+  });
 
-  test('T junction fails closed loop', () => {
+  test("T junction fails closed loop", () => {
     const walls = [
-      WallNode.parse({ parentId: 'lvl', start: [0, 0], end: [4, 0] }),
-      WallNode.parse({ parentId: 'lvl', start: [4, 0], end: [4, 4] }),
-      WallNode.parse({ parentId: 'lvl', start: [4, 4], end: [0, 4] }),
-      WallNode.parse({ parentId: 'lvl', start: [4, 0], end: [6, 0] }),
-    ]
-    expect(wallsFormSimpleClosedLoop(walls)).toBe(false)
-  })
+      WallNode.parse({ parentId: "lvl", start: [0, 0], end: [4, 0] }),
+      WallNode.parse({ parentId: "lvl", start: [4, 0], end: [4, 4] }),
+      WallNode.parse({ parentId: "lvl", start: [4, 4], end: [0, 4] }),
+      WallNode.parse({ parentId: "lvl", start: [4, 0], end: [6, 0] }),
+    ];
+    expect(wallsFormSimpleClosedLoop(walls)).toBe(false);
+  });
 
-  test('spawn on level validates', () => {
+  test("spawn on level validates", () => {
     const spawn = SpawnNode.parse({
-      parentId: 'level_spawntest',
+      parentId: "level_spawntest",
       position: [1, 0.5, 1],
-    })
+    });
     const level = LevelNode.parse({
-      id: 'level_spawntest',
-      parentId: 'building_sp',
+      id: "level_spawntest",
+      parentId: "building_sp",
       level: 0,
       children: [spawn.id],
-    })
+    });
     const nodes: Record<string, AnyNode> = {
       level_spawntest: level,
       [spawn.id]: spawn,
-    }
+    };
     const res = validateSpawn({
       nodes,
       rootNodeIds: [],
       buildingId: null,
-      levelId: 'level_spawntest',
+      levelId: "level_spawntest",
       isFirstPersonMode: false,
-    })
-    expect(res.ok).toBe(true)
-  })
+      viewMode: "3d",
+    });
+    expect(res.ok).toBe(true);
+  });
 
-  test('walkthrough requires first-person flag', () => {
+  test("walkthrough requires first-person flag", () => {
     const spawn = SpawnNode.parse({
-      parentId: 'level_walktest',
+      parentId: "level_walktest",
       position: [1, 0.5, 1],
-    })
+    });
     const level = LevelNode.parse({
-      id: 'level_walktest',
-      parentId: 'building_w',
+      id: "level_walktest",
+      parentId: "building_w",
       level: 0,
       children: [spawn.id],
-    })
+    });
     const nodes: Record<string, AnyNode> = {
       level_walktest: level,
       [spawn.id]: spawn,
-    }
+    };
     expect(
       validateWalkthrough({
         nodes,
         rootNodeIds: [],
         buildingId: null,
-        levelId: 'level_walktest',
+        levelId: "level_walktest",
         isFirstPersonMode: false,
+        viewMode: "3d",
       }).ok,
-    ).toBe(false)
+    ).toBe(false);
     expect(
       validateWalkthrough({
         nodes,
         rootNodeIds: [],
         buildingId: null,
-        levelId: 'level_walktest',
+        levelId: "level_walktest",
         isFirstPersonMode: true,
+        viewMode: "3d",
       }).ok,
-    ).toBe(true)
-  })
+    ).toBe(true);
+  });
 
-  test('spawn + walkthrough ok when levelId cleared but single spawn infers level', () => {
+  test("spawn + walkthrough ok when levelId cleared but single spawn infers level", () => {
     const spawn = SpawnNode.parse({
-      parentId: 'level_infer',
+      parentId: "level_infer",
       position: [1, 0.5, 1],
-    })
+    });
     const level = LevelNode.parse({
-      id: 'level_infer',
-      parentId: 'building_infer',
+      id: "level_infer",
+      parentId: "building_infer",
       level: 0,
       children: [spawn.id],
-    })
+    });
     const building = BuildingNode.parse({
-      id: 'building_infer',
-      parentId: 'site_infer',
+      id: "building_infer",
+      parentId: "site_infer",
       children: [level.id],
-    })
+    });
     const site = {
-      object: 'node',
-      id: 'site_infer',
-      type: 'site',
+      object: "node",
+      id: "site_infer",
+      type: "site",
       parentId: null,
       visible: true,
       metadata: {},
       children: [building.id],
-      polygon: { type: 'polygon', points: [] },
-    } as unknown as AnyNode
+      polygon: { type: "polygon", points: [] },
+    } as unknown as AnyNode;
     const nodes: Record<string, AnyNode> = {
       [site.id]: site,
       [building.id]: building,
       [level.id]: level,
       [spawn.id]: spawn,
-    }
+    };
     expect(
       validateSpawn({
         nodes,
@@ -325,8 +356,9 @@ describe('tutorial validators', () => {
         buildingId: building.id,
         levelId: null,
         isFirstPersonMode: false,
+        viewMode: "3d",
       }).ok,
-    ).toBe(true)
+    ).toBe(true);
     expect(
       validateWalkthrough({
         nodes,
@@ -334,7 +366,56 @@ describe('tutorial validators', () => {
         buildingId: building.id,
         levelId: null,
         isFirstPersonMode: true,
+        viewMode: "3d",
       }).ok,
-    ).toBe(true)
-  })
-})
+    ).toBe(true);
+  });
+
+  const floorplanCtxBase = {
+    nodes: {} as Record<string, unknown>,
+    rootNodeIds: [] as string[],
+    buildingId: null as string | null,
+    levelId: null as string | null,
+  };
+
+  test("floorplan step fails while walkthrough active", () => {
+    const res = validateFloorplanView({
+      ...floorplanCtxBase,
+      isFirstPersonMode: true,
+      viewMode: "2d",
+    });
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.reasonKey).toBe("tutorial.validation.walkthroughStillActive");
+    }
+  });
+
+  test("floorplan step fails on 3d-only view after exiting walkthrough", () => {
+    const res = validateFloorplanView({
+      ...floorplanCtxBase,
+      isFirstPersonMode: false,
+      viewMode: "3d",
+    });
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.reasonKey).toBe("tutorial.validation.floorplanSwitchView");
+    }
+  });
+
+  test("floorplan step passes for 2d or split after exiting walkthrough", () => {
+    expect(
+      validateFloorplanView({
+        ...floorplanCtxBase,
+        isFirstPersonMode: false,
+        viewMode: "2d",
+      }).ok,
+    ).toBe(true);
+    expect(
+      validateFloorplanView({
+        ...floorplanCtxBase,
+        isFirstPersonMode: false,
+        viewMode: "split",
+      }).ok,
+    ).toBe(true);
+  });
+});

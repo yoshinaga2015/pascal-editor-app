@@ -63,7 +63,7 @@ function ViewModeControl() {
   const setViewMode = useEditor((s) => s.setViewMode)
 
   return (
-    <div className={TOOLBAR_CONTAINER}>
+    <div className={TOOLBAR_CONTAINER} data-tutorial-target="tutorial-view-mode">
       {VIEW_MODE_IDS.map((mode) => {
         const isActive = viewMode === mode.id
         return (

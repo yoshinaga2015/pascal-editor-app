@@ -8,6 +8,7 @@ export type TutorialSpotlightTarget =
   | 'tutorial-tool-door'
   | 'tutorial-tool-spawn'
   | 'tutorial-walkthrough'
+  | 'tutorial-view-mode'
   | null
 
 export type TutorialChapterDefinition = {
@@ -30,6 +31,10 @@ export type TutorialChecklistKey =
   | 'opening'
   | 'spawn'
   | 'walk'
+  | 'floorplan'
+
+/** Mirrors editor ViewMode — kept literal here to avoid circular imports */
+export type TutorialViewMode = '3d' | '2d' | 'split'
 
 export type TutorialValidationContext = {
   nodes: Record<string, unknown>
@@ -37,4 +42,5 @@ export type TutorialValidationContext = {
   buildingId: string | null
   levelId: string | null
   isFirstPersonMode: boolean
+  viewMode: TutorialViewMode
 }

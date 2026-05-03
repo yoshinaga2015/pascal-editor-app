@@ -239,21 +239,22 @@ export const ja: Record<string, string> = {
   'tutorial.checklist.openingSkipped': 'ドアや出入口',
   'tutorial.checklist.spawn': 'スポーン位置を置く',
   'tutorial.checklist.walk': '歩いて確かめる',
+  'tutorial.checklist.floorplan': '2Dや分割で平面を見る',
   'tutorial.offer.title': 'ガイド付きで最初の一室をつくりますか？',
   'tutorial.offer.body':
-    'だいたい 10〜20 分です。土地の形から壁・床スラブ・出入口、スポーン位置、部屋の中を歩いてみるところまで、ながれで試せます。',
+    'だいたい 10〜20 分です。土地の形から壁・床スラブ・出入口、スポーン位置、部屋内のウォークスルー、平面（2D／分割）の確認まで、ながれで試せます。',
   'tutorial.offer.start': 'チュートリアルを開始',
   'tutorial.offer.dismiss': '閉じる',
   'tutorial.celebration.title': 'おつかれさまでした！',
   'tutorial.celebration.body':
-    '壁と床スラブで部屋をそろえ、出入口とスポーン位置を置き、部屋の中を歩いて確かめるところまでできました。',
+    '壁と床スラブで部屋をそろえ、出入口とスポーン位置を置き、ウォークスルーと平面表示まで確認できました。',
   'tutorial.celebration.cta': '閉じる',
   'tutorial.settings.section': 'チュートリアル',
   'tutorial.settings.description': 'いちばんかんたんな状態からやり直してから、説明にそって進みます。',
   'tutorial.settings.start': '「最初の一室」チュートリアルを開始',
   'tutorial.chapters.intro.title': 'ねらい：かんたんな部屋を一つつくる',
   'tutorial.chapters.intro.body':
-    'このガイドでは、土地を線で囲み→壁で一室→床スラブと出入口→スポーン位置→ウォークスルー、の順で進みます。「次へ」でチュートリアルを開始しましょう。',
+    'このガイドでは、土地を線で囲み→壁で一室→床スラブと出入口→スポーン位置→ウォークスルー→2D／分割での確認、の順で進みます。「次へ」でチュートリアルを開始しましょう。',
   'tutorial.chapters.intro.hint':
     '「次へ」でステップ1に進みます。',
   'tutorial.chapters.site.title': 'ステップ1：土地の形を線で囲む',
@@ -284,8 +285,13 @@ export const ja: Record<string, string> = {
   'tutorial.chapters.spawn.hint': 'この階にスポーン位置がありません。',
   'tutorial.chapters.walk.title': 'ステップ7：自分の目線で部屋の中を歩いてみる',
   'tutorial.chapters.walk.body':
-    '画面上の「ウォークスルー」（または歩いてみる機能）を開き、さきほどつくった部屋の中を実際に歩いて確かめてください。\n\n画面上部の表示モードで「2D」や「分割」を選ぶと、同じ部屋を平面図としても確認できます。「分割」は 2D と 3D を並べて表示します。\n\nEsc でウォークスルーを終了してから、「チュートリアルを完了」を押してください。',
+    '画面上の「ウォークスルー」（または歩いてみる機能）を開き、さきほどつくった部屋の中を実際に歩いて確かめてください。\n\nEsc でウォークスルーを終了してから、「次へ」でステップ8に進んでください。',
   'tutorial.chapters.walk.hint': 'いちばんはじめに、歩いてみるモードをオンにしてください。',
+  'tutorial.chapters.floorplan.title': 'ステップ8：2Dや分割で平面を確認する',
+  'tutorial.chapters.floorplan.body':
+    '画面上部の表示モードで「2D」または「分割」を選び、さきほどつくった部屋を平面図としても確認してください。「分割」は 2D と 3D を並べて表示します。\n\nウォークスルーを終えてから試してください。',
+  'tutorial.chapters.floorplan.hint':
+    'ツールバー左側の 3D／2D／分割 の並びから、「2D」または「分割」を選んでください。ウォークスルーを終えていない場合は Esc を押してください。',
   'tutorial.validation.siteMissing':
     '土地まわりのデータが見つかりません。設定からチュートリアルをやり直してみてください。',
   'tutorial.validation.sitePointsFew':
@@ -307,6 +313,10 @@ export const ja: Record<string, string> = {
   'tutorial.validation.spawnMissing': 'この階にスポーン位置がありません。',
   'tutorial.validation.walkthroughNotStarted':
     '「歩いてみる」（ウォークスルー）をまだ始めていません。ツールバーなどからオンにしてください。',
+  'tutorial.validation.walkthroughStillActive':
+    'ウォークスルーを終了してください（Esc）。終えてから平面表示に切り替えられます。',
+  'tutorial.validation.floorplanSwitchView':
+    '画面上部の表示モードで「2D」または「分割」を選んでください。',
 
   'tree.addLevelTooltip': '階層を追加',
 }
@@ -525,14 +535,15 @@ export const en: Record<string, string> = {
   'tutorial.checklist.openingSkipped': 'Door or opening',
   'tutorial.checklist.spawn': 'Place spawn position',
   'tutorial.checklist.walk': 'Walk through',
+  'tutorial.checklist.floorplan': 'View floor plan (2D / Split)',
   'tutorial.offer.title': 'Try the guided “first room” walkthrough?',
   'tutorial.offer.body':
-    'About 10–20 minutes: site boundary → walls → floor slab → door → spawn → walk through.',
+    'About 10–20 minutes: site boundary → walls → floor slab → door → spawn → walkthrough → floor plan (2D / Split).',
   'tutorial.offer.start': 'Start tutorial',
   'tutorial.offer.dismiss': 'Dismiss',
   'tutorial.celebration.title': 'Nice work!',
   'tutorial.celebration.body':
-    'You enclosed the room, laid the slab, added a door, placed spawn, and walked through.',
+    'You enclosed the room, laid the slab, added a door and spawn, walked through, and checked the floor plan.',
   'tutorial.celebration.cta': 'Close',
   'tutorial.settings.section': 'Tutorial',
   'tutorial.settings.description':
@@ -540,7 +551,7 @@ export const en: Record<string, string> = {
   'tutorial.settings.start': 'Start “first room” tutorial',
   'tutorial.chapters.intro.title': 'Goal: a minimal enclosed room',
   'tutorial.chapters.intro.body':
-    'You’ll work through site boundary → walls → slab & door → spawn → walkthrough, one step at a time. Go at your own pace; when stuck, read the panel note—then the numbered hints below it.',
+    'You’ll work through site boundary → walls → slab & door → spawn → walkthrough → floor plan (2D / Split), one step at a time. Go at your own pace; when stuck, read the panel note—then the numbered hints below it.',
   'tutorial.chapters.intro.hint':
     'Press Next to begin Step 1.',
   'tutorial.chapters.site.title': 'Step 1: Turn the site boundary into a closed loop',
@@ -570,8 +581,13 @@ export const en: Record<string, string> = {
   'tutorial.chapters.spawn.hint': 'No spawn position on this level.',
   'tutorial.chapters.walk.title': 'Step 7: Walk through your room',
   'tutorial.chapters.walk.body':
-    'Open Walkthrough from the toolbar and walk inside the room you built.\n\nUse the view mode control at the top to switch to 2D or Split—the same room appears as a floor plan (Split shows 2D and 3D side by side).\n\nPress Esc to exit walkthrough, then click Finish tutorial.',
+    'Open Walkthrough from the toolbar and walk inside the room you built.\n\nPress Esc to exit walkthrough, then press Next to continue to Step 8.',
   'tutorial.chapters.walk.hint': 'Enable first-person walkthrough mode.',
+  'tutorial.chapters.floorplan.title': 'Step 8: Check the floor plan (2D / Split)',
+  'tutorial.chapters.floorplan.body':
+    'Use the view mode control at the top to switch to 2D or Split—the same room appears as a floor plan (Split shows 2D and 3D side by side).\n\nDo this after you’ve exited walkthrough.',
+  'tutorial.chapters.floorplan.hint':
+    'Pick 2D or Split in the toolbar’s 3D / 2D / Split group on the left. If walkthrough is still on, press Esc first.',
   'tutorial.validation.siteMissing': 'No site data found. Try restarting the tutorial from Settings.',
   'tutorial.validation.sitePointsFew':
     'Not enough corners on the boundary—you need at least three vertices (four for a rectangle). While editing the site, use Add vertex in the sidebar.',
@@ -589,6 +605,9 @@ export const en: Record<string, string> = {
   'tutorial.validation.openingMissing': 'No door/opening found.',
   'tutorial.validation.spawnMissing': 'No spawn position on this level.',
   'tutorial.validation.walkthroughNotStarted': 'Start first-person walkthrough mode.',
+  'tutorial.validation.walkthroughStillActive':
+    'Exit walkthrough first (Esc). Then you can switch to 2D or Split.',
+  'tutorial.validation.floorplanSwitchView': 'Switch view mode to 2D or Split at the top.',
 
   'tree.addLevelTooltip': 'Add new level',
 }

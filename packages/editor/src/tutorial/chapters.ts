@@ -3,6 +3,7 @@ import {
   validateBuildingAndLevel,
   validateClosedRoomWalls,
   validateClosedSite,
+  validateFloorplanView,
   validateIntro,
   validateOpening,
   validateSlab,
@@ -82,5 +83,14 @@ export const TUTORIAL_CHAPTERS: TutorialChapterDefinition[] = [
     recoveryHintKey: 'tutorial.chapters.walk.hint',
     spotlightTarget: 'tutorial-walkthrough',
     validate: validateWalkthrough,
+  },
+  {
+    id: 'floorplan',
+    milestoneKey: 'floorplan',
+    titleKey: 'tutorial.chapters.floorplan.title',
+    bodyKey: 'tutorial.chapters.floorplan.body',
+    recoveryHintKey: 'tutorial.chapters.floorplan.hint',
+    spotlightTarget: 'tutorial-view-mode',
+    validate: validateFloorplanView,
   },
 ]

@@ -247,6 +247,7 @@ function TutorialOverlayPanel() {
   const buildingId = useViewer((s) => s.selection.buildingId)
   const levelId = useViewer((s) => s.selection.levelId)
   const isFirstPersonMode = useEditor((s) => s.isFirstPersonMode)
+  const viewMode = useEditor((s) => s.viewMode)
 
   const active = useTutorialStore((s) => s.active)
   const chapterIndex = useTutorialStore((s) => s.chapterIndex)
@@ -265,8 +266,9 @@ function TutorialOverlayPanel() {
       buildingId,
       levelId,
       isFirstPersonMode,
+      viewMode,
     }),
-    [nodes, rootNodeIds, buildingId, levelId, isFirstPersonMode],
+    [nodes, rootNodeIds, buildingId, levelId, isFirstPersonMode, viewMode],
   )
 
   const lastIndex = TUTORIAL_CHAPTERS.length - 1
@@ -325,6 +327,7 @@ function TutorialOverlayPanel() {
         },
         { key: 'spawn', labelKey: 'tutorial.checklist.spawn' },
         { key: 'walk', labelKey: 'tutorial.checklist.walk' },
+        { key: 'floorplan', labelKey: 'tutorial.checklist.floorplan' },
       ],
       [],
     )
