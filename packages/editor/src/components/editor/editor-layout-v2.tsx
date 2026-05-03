@@ -4,6 +4,7 @@ import { type ReactNode, useCallback, useEffect, useRef } from 'react'
 import { useIsMobile } from '../../hooks/use-mobile'
 import useEditor from '../../store/use-editor'
 
+import { useI18n } from '../../i18n'
 import { useSidebarStore } from '../ui/primitives/sidebar'
 import { type SidebarTab, TabBar } from '../ui/sidebar/tab-bar'
 import { EditorLayoutMobile } from './editor-layout-mobile'
@@ -23,6 +24,7 @@ function LeftColumn({
   renderTabContent: (tabId: string) => ReactNode
   sidebarOverlay?: ReactNode
 }) {
+  const { t } = useI18n()
   const width = useSidebarStore((s) => s.width)
   const isCollapsed = useSidebarStore((s) => s.isCollapsed)
   const setIsCollapsed = useSidebarStore((s) => s.setIsCollapsed)
@@ -37,7 +39,7 @@ function LeftColumn({
 
   // Ensure active panel is a valid tab
   useEffect(() => {
-    if (tabs.length > 0 && !tabs.some((t) => t.id === activePanel)) {
+    if (tabs.length > 0 && !tabs.some((tab) => tab.id === activePanel)) {
       setActivePanel(tabs[0]!.id)
     }
   }, [tabs, activePanel, setActivePanel])
@@ -108,7 +110,7 @@ function LeftColumn({
       <div
         className="relative h-full w-2 flex-shrink-0 cursor-col-resize transition-colors hover:bg-primary/20"
         onPointerDown={handleGrabDown}
-        title="Expand sidebar"
+        title={t('toolbar.expandSidebar')}
       />
     )
   }

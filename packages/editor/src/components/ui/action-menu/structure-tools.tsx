@@ -4,6 +4,7 @@ import NextImage from 'next/image'
 import { useContextualTools } from '../../../hooks/use-contextual-tools'
 
 import { cn } from '../../../lib/utils'
+import { useI18n } from '../../../i18n'
 import useEditor, {
   type CatalogCategory,
   type StructureTool,
@@ -14,26 +15,26 @@ import { ActionButton } from './action-button'
 export type ToolConfig = {
   id: StructureTool
   iconSrc: string
-  label: string
+  labelKey: string
   catalogCategory?: CatalogCategory
 }
 
 export const tools: ToolConfig[] = [
-  { id: 'wall', iconSrc: '/icons/wall.png', label: 'Wall' },
-  // { id: 'room', iconSrc: '/icons/room.png', label: 'Room' },
-  // { id: 'custom-room', iconSrc: '/icons/custom-room.png', label: 'Custom Room' },
-  { id: 'slab', iconSrc: '/icons/floor.png', label: 'Slab' },
-  { id: 'ceiling', iconSrc: '/icons/ceiling.png', label: 'Ceiling' },
-  { id: 'roof', iconSrc: '/icons/roof.png', label: 'Gable Roof' },
-  { id: 'stair', iconSrc: '/icons/stairs.png', label: 'Stairs' },
-  { id: 'door', iconSrc: '/icons/door.png', label: 'Door' },
-  { id: 'window', iconSrc: '/icons/window.png', label: 'Window' },
-  { id: 'fence', iconSrc: '/icons/fence.png', label: 'Fence' },
-  { id: 'zone', iconSrc: '/icons/zone.png', label: 'Zone' },
-  { id: 'spawn', iconSrc: '/icons/site.png', label: 'Spawn Point' },
+  { id: 'wall', iconSrc: '/icons/wall.png', labelKey: 'tools.wall' },
+  // { id: 'room', iconSrc: '/icons/room.png', labelKey: '...' },
+  { id: 'slab', iconSrc: '/icons/floor.png', labelKey: 'tools.slab' },
+  { id: 'ceiling', iconSrc: '/icons/ceiling.png', labelKey: 'tools.ceiling' },
+  { id: 'roof', iconSrc: '/icons/roof.png', labelKey: 'tools.roof' },
+  { id: 'stair', iconSrc: '/icons/stairs.png', labelKey: 'tools.stair' },
+  { id: 'door', iconSrc: '/icons/door.png', labelKey: 'tools.door' },
+  { id: 'window', iconSrc: '/icons/window.png', labelKey: 'tools.window' },
+  { id: 'fence', iconSrc: '/icons/fence.png', labelKey: 'tools.fence' },
+  { id: 'zone', iconSrc: '/icons/zone.png', labelKey: 'tools.zone' },
+  { id: 'spawn', iconSrc: '/icons/site.png', labelKey: 'tools.spawn' },
 ]
 
 export function StructureTools() {
+  const { t } = useI18n()
   const activeTool = useEditor((state) => state.tool)
   const catalogCategory = useEditor((state) => state.catalogCategory)
   const structureLayer = useEditor((state) => state.structureLayer)
@@ -63,6 +64,8 @@ export function StructureTools() {
 
         const isContextual = contextualTools.includes(tool.id)
 
+        const label = t(tool.labelKey)
+
         return (
           <ActionButton
             className={cn(
@@ -72,7 +75,7 @@ export function StructureTools() {
                 : 'scale-95 bg-transparent opacity-60 grayscale hover:bg-black/20 hover:opacity-100 hover:grayscale-0',
             )}
             key={`${tool.id}-${tool.catalogCategory ?? index}`}
-            label={tool.label}
+            label={label}
             onClick={() => {
               if (!isActive) {
                 setTool(tool.id)
@@ -88,7 +91,7 @@ export function StructureTools() {
             variant="ghost"
           >
             <NextImage
-              alt={tool.label}
+              alt={label}
               className="size-full object-contain"
               height={28}
               src={tool.iconSrc}

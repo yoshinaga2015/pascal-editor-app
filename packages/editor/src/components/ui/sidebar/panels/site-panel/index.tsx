@@ -38,6 +38,7 @@ import {
   type LevelDuplicatePreset,
 } from './../../../../../lib/level-duplication'
 import { cn } from './../../../../../lib/utils'
+import { useI18n } from './../../../../../i18n'
 import useEditor from './../../../../../store/use-editor'
 import { useUploadStore } from '../../../../../store/use-upload'
 import { LevelDuplicateDialog } from '../../../level-duplicate-dialog'
@@ -936,6 +937,7 @@ const LevelsSection = memo(function LevelsSection({
 })
 
 const LayerToggle = memo(function LayerToggle() {
+  const { t } = useI18n()
   const structureLayer = useEditor((state) => state.structureLayer)
   const setStructureLayer = useEditor((state) => state.setStructureLayer)
   const phase = useEditor((state) => state.phase)
@@ -973,14 +975,14 @@ const LayerToggle = memo(function LayerToggle() {
         )}
         <div className="relative z-10 flex flex-col items-center">
           <img
-            alt="Structure"
+            alt={t('sidebar.structure')}
             className={cn(
               'mb-1 h-6 w-6 transition-all',
               activeTab !== 'structure' && 'opacity-50 grayscale',
             )}
             src="/icons/room.png"
           />
-          Structure
+          {t('sidebar.structure')}
         </div>
         <div className="absolute right-1.5 bottom-1 z-10 rounded border border-border/40 bg-background/40 px-1 py-[2px] backdrop-blur-md">
           <span className="block font-medium font-mono text-[9px] text-muted-foreground/70 leading-none">
@@ -1009,14 +1011,14 @@ const LayerToggle = memo(function LayerToggle() {
         )}
         <div className="relative z-10 flex flex-col items-center">
           <img
-            alt="Furnish"
+            alt={t('sidebar.furnish')}
             className={cn(
               'mb-1 h-6 w-6 transition-all',
               activeTab !== 'furnish' && 'opacity-50 grayscale',
             )}
             src="/icons/couch.png"
           />
-          Furnish
+          {t('sidebar.furnish')}
         </div>
         <div className="absolute right-1.5 bottom-1 z-10 rounded border border-border/40 bg-background/40 px-1 py-[2px] backdrop-blur-md">
           <span className="block font-medium font-mono text-[9px] text-muted-foreground/70 leading-none">
@@ -1046,14 +1048,14 @@ const LayerToggle = memo(function LayerToggle() {
         )}
         <div className="relative z-10 flex flex-col items-center">
           <img
-            alt="Zones"
+            alt={t('sidebar.zones')}
             className={cn(
               'mb-1 h-6 w-6 transition-all',
               activeTab !== 'zones' && 'opacity-50 grayscale',
             )}
             src="/icons/kitchen.png"
           />
-          Zones
+          {t('sidebar.zones')}
         </div>
         <div className="absolute right-1.5 bottom-1 z-10 rounded border border-border/40 bg-background/40 px-1 py-[2px] backdrop-blur-md">
           <span className="block font-medium font-mono text-[9px] text-muted-foreground/70 leading-none">
@@ -1229,6 +1231,7 @@ const ZoneItem = memo(function ZoneItem({ zone, isLast }: { zone: ZoneNode; isLa
 })
 
 const MultiSelectionBadge = memo(function MultiSelectionBadge() {
+  const { t } = useI18n()
   const selectedIds = useViewer((state) => state.selection.selectedIds)
   const setSelection = useViewer((state) => state.setSelection)
 
@@ -1237,11 +1240,11 @@ const MultiSelectionBadge = memo(function MultiSelectionBadge() {
   return (
     <div className="pointer-events-none sticky top-4 z-50 flex h-0 w-full justify-center overflow-visible">
       <div className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-primary/20 bg-primary px-0.5 py-4 pl-2 font-medium text-primary-foreground text-xs shadow-black/10 shadow-lg backdrop-blur-md">
-        <span>{selectedIds.length} objects selected</span>
+        <span>{t('sidebar.objectsSelected', { count: selectedIds.length })}</span>
         <button
           className="cursor-pointer rounded-full p-1.5 transition-colors hover:bg-primary-foreground/20"
           onClick={() => setSelection({ selectedIds: [] })}
-          title="Clear selection"
+          title={t('sidebar.clearSelection')}
         >
           <X className="h-4 w-4" />
         </button>
@@ -1251,6 +1254,7 @@ const MultiSelectionBadge = memo(function MultiSelectionBadge() {
 })
 
 const ContentSection = memo(function ContentSection() {
+  const { t } = useI18n()
   const selectedLevelId = useViewer((state) => state.selection.levelId)
   const structureLayer = useEditor((state) => state.structureLayer)
   const phase = useEditor((state) => state.phase)
@@ -1280,7 +1284,7 @@ const ContentSection = memo(function ContentSection() {
 
   if (!level) {
     return (
-      <div className="px-3 py-4 text-muted-foreground text-sm">Select a level to view content</div>
+      <div className="px-3 py-4 text-muted-foreground text-sm">{t('sidebar.selectLevelContent')}</div>
     )
   }
 
@@ -1294,9 +1298,9 @@ const ContentSection = memo(function ContentSection() {
     if (levelZones.length === 0) {
       return (
         <div className="px-3 py-4 text-muted-foreground text-sm">
-          No zones on this level.{' '}
+          {t('sidebar.noZones')}{' '}
           <button className="cursor-pointer text-primary hover:underline" onClick={handleAddZone}>
-            Add one
+            {t('sidebar.addZone')}
           </button>
         </div>
       )
@@ -1312,7 +1316,7 @@ const ContentSection = memo(function ContentSection() {
   }
 
   if (elementChildren.length === 0) {
-    return <div className="px-3 py-4 text-muted-foreground text-sm">No elements on this level</div>
+    return <div className="px-3 py-4 text-muted-foreground text-sm">{t('sidebar.noElements')}</div>
   }
   return (
     <TreeNodeDragProvider>

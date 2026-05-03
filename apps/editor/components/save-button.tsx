@@ -1,6 +1,7 @@
 'use client'
 
 import type { SceneGraph } from '@pascal-app/editor'
+import { useI18n } from '@pascal-app/editor'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -19,7 +20,9 @@ interface SaveButtonProps {
 /**
  * Creates a new empty scene and navigates the user to it.
  */
-export function CreateSceneButton({ label = 'Create new scene' }: { label?: string } = {}) {
+export function CreateSceneButton({ label }: { label?: string } = {}) {
+  const { t } = useI18n()
+  const resolvedLabel = label ?? t('scenes.createButton')
   const router = useRouter()
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +58,7 @@ export function CreateSceneButton({ label = 'Create new scene' }: { label?: stri
         onClick={handleCreate}
         type="button"
       >
-        {isCreating ? 'Creating…' : label}
+        {isCreating ? t('scenes.creating') : resolvedLabel}
       </button>
     </div>
   )

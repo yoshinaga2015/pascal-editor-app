@@ -1,9 +1,12 @@
+'use client'
+
 import { Html } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { forwardRef } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import type { Group } from 'three'
 import { furnishTools } from '../../../components/ui/action-menu/furnish-tools'
 import { tools } from '../../../components/ui/action-menu/structure-tools'
+import { useOptionalI18n } from '../../../i18n'
 import { EDITOR_LAYER } from '../../../lib/constants'
 import useEditor from '../../../store/use-editor'
 
@@ -13,7 +16,7 @@ interface CursorSphereProps extends Omit<ThreeElements['group'], 'ref'> {
   showTooltip?: boolean
   height?: number
   /** Custom tooltip content — overrides the auto-detected build tool icon */
-  tooltipContent?: React.ReactNode
+  tooltipContent?: ReactNode
 }
 
 export const CursorSphere = forwardRef<Group, CursorSphereProps>(function CursorSphere(
@@ -24,6 +27,7 @@ export const CursorSphere = forwardRef<Group, CursorSphereProps>(function Cursor
   const mode = useEditor((s) => s.mode)
   const catalogCategory = useEditor((s) => s.catalogCategory)
   const isFloorplanHovered = useEditor((s) => s.isFloorplanHovered)
+  const i18n = useOptionalI18n()
 
   // Find the icon for the current tool
   let activeToolConfig = null
@@ -36,6 +40,14 @@ export const CursorSphere = forwardRef<Group, CursorSphereProps>(function Cursor
   }
 
   const isVisible = visible && !isFloorplanHovered
+
+  const toolAlt =
+    activeToolConfig &&
+    ('labelKey' in activeToolConfig
+      ? i18n?.t(activeToolConfig.labelKey) ?? activeToolConfig.labelKey
+      : 'label' in activeToolConfig
+        ? activeToolConfig.label
+        : '')
 
   return (
     <group ref={ref} {...props} visible={isVisible}>
@@ -102,7 +114,7 @@ export const CursorSphere = forwardRef<Group, CursorSphereProps>(function Cursor
           {tooltipContent || (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              alt={activeToolConfig!.label}
+              alt={toolAlt || 'tool'}
               src={activeToolConfig!.iconSrc}
               style={{
                 width: '100%',

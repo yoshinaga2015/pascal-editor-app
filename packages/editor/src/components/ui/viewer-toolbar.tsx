@@ -2,11 +2,22 @@
 
 import { Icon as IconifyIcon } from '@iconify/react'
 import { useViewer } from '@pascal-app/viewer'
-import { Check, ChevronsLeft, ChevronsRight, Columns2, Eye, Footprints, Moon, Sun } from 'lucide-react'
-import { useCallback } from 'react'
+import {
+  Check,
+  ChevronsLeft,
+  ChevronsRight,
+  Columns2,
+  Eye,
+  Footprints,
+  Languages,
+  Moon,
+  Sun,
+} from 'lucide-react'
+import { useCallback, type ReactNode } from 'react'
 import { cn } from '../../lib/utils'
 import useEditor from '../../store/use-editor'
 import type { GridSnapStep, ViewMode } from '../../store/use-editor'
+import { useI18n } from '../../i18n'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,31 +39,32 @@ const TOOLBAR_BTN =
 
 // ── View mode segmented control ─────────────────────────────────────────────
 
-const VIEW_MODES: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
+const VIEW_MODE_IDS: { id: ViewMode; labelKey: string; icon: ReactNode }[] = [
   {
     id: '3d',
-    label: '3D',
+    labelKey: 'viewMode.3d',
     icon: <img alt="" className="h-3.5 w-3.5 object-contain" src="/icons/building.png" />,
   },
   {
     id: '2d',
-    label: '2D',
+    labelKey: 'viewMode.2d',
     icon: <img alt="" className="h-3.5 w-3.5 object-contain" src="/icons/blueprint.png" />,
   },
   {
     id: 'split',
-    label: 'Split',
+    labelKey: 'viewMode.split',
     icon: <Columns2 className="h-3 w-3" />,
   },
 ]
 
 function ViewModeControl() {
+  const { t } = useI18n()
   const viewMode = useEditor((s) => s.viewMode)
   const setViewMode = useEditor((s) => s.setViewMode)
 
   return (
     <div className={TOOLBAR_CONTAINER}>
-      {VIEW_MODES.map((mode) => {
+      {VIEW_MODE_IDS.map((mode) => {
         const isActive = viewMode === mode.id
         return (
           <button
@@ -67,7 +79,7 @@ function ViewModeControl() {
             type="button"
           >
             {mode.icon}
-            <span>{mode.label}</span>
+            <span>{t(mode.labelKey)}</span>
           </button>
         )
       })}
@@ -78,6 +90,7 @@ function ViewModeControl() {
 // ── Collapse sidebar button ─────────────────────────────────────────────────
 
 function CollapseSidebarButton() {
+  const { t } = useI18n()
   const isCollapsed = useSidebarStore((s) => s.isCollapsed)
   const setIsCollapsed = useSidebarStore((s) => s.setIsCollapsed)
 
@@ -90,7 +103,7 @@ function CollapseSidebarButton() {
       <button
         className={TOOLBAR_BTN}
         onClick={toggle}
-        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={isCollapsed ? t('toolbar.expandSidebar') : t('toolbar.collapseSidebar')}
         type="button"
       >
         {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
@@ -102,6 +115,7 @@ function CollapseSidebarButton() {
 // ── Right toolbar buttons ───────────────────────────────────────────────────
 
 function WalkthroughButton() {
+  const { t } = useI18n()
   const isFirstPersonMode = useEditor((s) => s.isFirstPersonMode)
   const setFirstPersonMode = useEditor((s) => s.setFirstPersonMode)
 
@@ -123,12 +137,13 @@ function WalkthroughButton() {
           <Footprints className="h-4 w-4" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Walkthrough</TooltipContent>
+      <TooltipContent side="bottom">{t('toolbar.walkthrough')}</TooltipContent>
     </Tooltip>
   )
 }
 
 function UnitToggle() {
+  const { t } = useI18n()
   const unit = useViewer((s) => s.unit)
   const setUnit = useViewer((s) => s.setUnit)
 
@@ -144,13 +159,14 @@ function UnitToggle() {
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {unit === 'metric' ? 'Metric (m)' : 'Imperial (ft)'}
+        {unit === 'metric' ? t('toolbar.metric') : t('toolbar.imperial')}
       </TooltipContent>
     </Tooltip>
   )
 }
 
 function ThemeToggle() {
+  const { t } = useI18n()
   const theme = useViewer((s) => s.theme)
   const setTheme = useViewer((s) => s.setTheme)
 
@@ -165,7 +181,7 @@ function ThemeToggle() {
           {theme === 'dark' ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{theme === 'dark' ? 'Dark' : 'Light'}</TooltipContent>
+      <TooltipContent side="bottom">{theme === 'dark' ? t('toolbar.dark') : t('toolbar.light')}</TooltipContent>
     </Tooltip>
   )
 }
@@ -173,11 +189,11 @@ function ThemeToggle() {
 // ── Level mode toggle ───────────────────────────────────────────────────────
 
 const levelModeOrder = ['stacked', 'exploded', 'solo'] as const
-const levelModeLabels: Record<string, string> = {
-  manual: 'Stack',
-  stacked: 'Stack',
-  exploded: 'Exploded',
-  solo: 'Solo',
+
+function levelModeLabelKey(mode: string): string {
+  if (mode === 'exploded') return 'levelMode.exploded'
+  if (mode === 'solo') return 'levelMode.solo'
+  return 'levelMode.stack'
 }
 
 const gridSnapOrder: GridSnapStep[] = [0.5, 0.25, 0.1, 0.05]
@@ -193,6 +209,7 @@ function formatGridSnapStep(step: GridSnapStep): string {
 }
 
 function LevelModeToggle() {
+  const { t } = useI18n()
   const levelMode = useViewer((s) => s.levelMode)
   const setLevelMode = useViewer((s) => s.setLevelMode)
 
@@ -207,6 +224,10 @@ function LevelModeToggle() {
   }
 
   const isDefault = levelMode === 'stacked' || levelMode === 'manual'
+  const modeLabel =
+    levelMode === 'manual'
+      ? t('levelMode.manual')
+      : t(levelModeLabelKey(levelMode as (typeof levelModeOrder)[number]))
 
   return (
     <Tooltip>
@@ -227,17 +248,16 @@ function LevelModeToggle() {
           ) : (
             <IconifyIcon height={14} icon="charm:stack-push" width={14} />
           )}
-          <span className="font-medium text-xs">{levelModeLabels[levelMode] ?? 'Stack'}</span>
+          <span className="font-medium text-xs">{modeLabel}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        Levels: {levelMode === 'manual' ? 'Manual' : levelModeLabels[levelMode]}
-      </TooltipContent>
+      <TooltipContent side="bottom">{t('levelMode.tooltip', { mode: modeLabel })}</TooltipContent>
     </Tooltip>
   )
 }
 
 function GridSnapToggle() {
+  const { t } = useI18n()
   const gridSnapStep = useEditor((s) => s.gridSnapStep)
   const setGridSnapStep = useEditor((s) => s.setGridSnapStep)
 
@@ -252,7 +272,9 @@ function GridSnapToggle() {
             </button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Grid snap: {formatGridSnapStep(gridSnapStep)}</TooltipContent>
+        <TooltipContent side="bottom">
+          {t('gridSnap.tooltip', { step: formatGridSnapStep(gridSnapStep) })}
+        </TooltipContent>
       </Tooltip>
       <DropdownMenuContent align="center" side="bottom">
         {gridSnapOrder.map((step) => {
@@ -274,13 +296,14 @@ function GridSnapToggle() {
 // ── Wall mode toggle ────────────────────────────────────────────────────────
 
 const wallModeOrder = ['cutaway', 'up', 'down'] as const
-const wallModeConfig: Record<string, { icon: string; label: string }> = {
-  up: { icon: '/icons/room.png', label: 'Full height' },
-  cutaway: { icon: '/icons/wallcut.png', label: 'Cutaway' },
-  down: { icon: '/icons/walllow.png', label: 'Low' },
+const wallModeConfig: Record<string, { icon: string; labelKey: string }> = {
+  up: { icon: '/icons/room.png', labelKey: 'wallMode.fullHeight' },
+  cutaway: { icon: '/icons/wallcut.png', labelKey: 'wallMode.cutaway' },
+  down: { icon: '/icons/walllow.png', labelKey: 'wallMode.low' },
 }
 
 function WallModeToggle() {
+  const { t } = useI18n()
   const wallMode = useViewer((s) => s.wallMode)
   const setWallMode = useViewer((s) => s.setWallMode)
 
@@ -291,6 +314,7 @@ function WallModeToggle() {
   }
 
   const config = wallModeConfig[wallMode] ?? wallModeConfig.cutaway!
+  const wallLabel = t(config.labelKey)
 
   return (
     <Tooltip>
@@ -306,11 +330,11 @@ function WallModeToggle() {
           onClick={cycle}
           type="button"
         >
-          <img alt={config.label} className="h-4 w-4 object-contain" src={config.icon} />
-          <span className="font-medium text-xs">{config.label}</span>
+          <img alt={wallLabel} className="h-4 w-4 object-contain" src={config.icon} />
+          <span className="font-medium text-xs">{wallLabel}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Walls: {config.label}</TooltipContent>
+      <TooltipContent side="bottom">{t('wallMode.tooltip', { mode: wallLabel })}</TooltipContent>
     </Tooltip>
   )
 }
@@ -318,6 +342,7 @@ function WallModeToggle() {
 // ── Camera mode toggle ──────────────────────────────────────────────────────
 
 function CameraModeToggle() {
+  const { t } = useI18n()
   const cameraMode = useViewer((s) => s.cameraMode)
   const setCameraMode = useViewer((s) => s.setCameraMode)
 
@@ -342,13 +367,14 @@ function CameraModeToggle() {
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {cameraMode === 'perspective' ? 'Perspective' : 'Orthographic'}
+        {cameraMode === 'perspective' ? t('camera.perspective') : t('camera.orthographic')}
       </TooltipContent>
     </Tooltip>
   )
 }
 
 function PreviewButton() {
+  const { t } = useI18n()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -358,11 +384,44 @@ function PreviewButton() {
           type="button"
         >
           <Eye className="h-3.5 w-3.5 shrink-0" />
-          <span>Preview</span>
+          <span>{t('toolbar.preview')}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Preview mode</TooltipContent>
+      <TooltipContent side="bottom">{t('toolbar.previewTooltip')}</TooltipContent>
     </Tooltip>
+  )
+}
+
+function LanguageSwitcher() {
+  const { locale, setLocale, t } = useI18n()
+
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button className={TOOLBAR_BTN} type="button">
+              <Languages className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('language.switch')}</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="end" side="bottom">
+        <DropdownMenuItem onSelect={() => setLocale('ja')}>
+          <span className="flex min-w-28 items-center justify-between gap-3">
+            <span>{t('language.ja')}</span>
+            {locale === 'ja' ? <Check className="h-3.5 w-3.5" /> : <span className="h-3.5 w-3.5" />}
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => setLocale('en')}>
+          <span className="flex min-w-28 items-center justify-between gap-3">
+            <span>{t('language.en')}</span>
+            {locale === 'en' ? <Check className="h-3.5 w-3.5" /> : <span className="h-3.5 w-3.5" />}
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -387,6 +446,7 @@ export function ViewerToolbarRight() {
       <UnitToggle />
       <ThemeToggle />
       <CameraModeToggle />
+      <LanguageSwitcher />
       <div className="my-1.5 w-px bg-border/50" />
       <WalkthroughButton />
       <PreviewButton />

@@ -3,6 +3,7 @@ import { GeistPixelSquare } from 'geist/font/pixel'
 import { Barlow } from 'next/font/google'
 import localFont from 'next/font/local'
 import Script from 'next/script'
+import { Providers } from '@/components/providers'
 import './globals.css'
 
 const geistSans = localFont({
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       className={`${geistSans.variable} ${geistMono.variable} ${GeistPixelSquare.variable} ${barlow.variable}`}
-      lang="en"
+      lang="ja"
     >
       <head>
         {process.env.NODE_ENV === 'development' && (
@@ -41,7 +42,7 @@ export default function RootLayout({
         )}
       </head>
       <body className="font-sans">
-        {children}
+        <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'development' && <Agentation />}
       </body>
     </html>

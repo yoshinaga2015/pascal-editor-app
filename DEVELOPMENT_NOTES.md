@@ -71,3 +71,24 @@
 
 1. **コピー先:** `~/Applications/PascalEditor` に限定し、システム全体の Applications と混ぜない。
 2. **`rsync --delete`:** バンドル内で削除されたファイルもミラーに反映する。
+
+## 2026-05-03 — アプリの日本語既定化と英語切り替え（i18n）
+
+### 変更の具体
+
+- `packages/editor/src/i18n/` を追加（`ja` / `en` 辞書、`I18nProvider`、`useI18n`、`useOptionalI18n`、`localStorage` キー `pascal-editor-locale`）。
+- `@pascal-app/editor` から i18n を再エクスポート。
+- ビューアツールバーに言語スイッチャー（地球アイコン）を追加。主要 UI（ツールバー、オーバーレイ、クラッシュフォールバック、カメラヒント、構造ツール、サイトパネルの一部など）を `t()` 化。
+- `apps/editor` で `Providers` により `I18nProvider` でラップ、`layout` の `lang` 初期値を `ja` に変更（クライアントで選択言語に同期）。
+- シーン一覧・404・ホームバナー・作成ボタン文言を i18n 対応（`scenes-view.tsx`、`scene-not-found.tsx` など）。
+
+### 意図
+
+- 既定を日本語とし、アプリ内から英語へ切り替え可能にする。
+- 選択言語をローカルに保持し、`html lang` をアクセシビリティ・フォントに整合させる。
+
+### ADR
+
+1. **辞書の置き場所:** 文言の大半は `@pascal-app/editor` に集約し、ホストアプリは Provider とページ固有のクライアント枠のみ担当する。
+2. **永続化:** ブラウザの `localStorage` のみ（サーバーセッションなし）。SSR の初期 HTML は `lang="ja"` 固定で、ハイドレーション後にユーザー設定へ合わせる。
+3. **オプショナルフック:** R3F など Provider 外になりうる箇所は `useOptionalI18n` でフォールバックする。
