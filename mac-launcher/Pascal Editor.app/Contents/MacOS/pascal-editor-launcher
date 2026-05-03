@@ -1,0 +1,119 @@
+#!/bin/bash
+set -euo pipefail
+
+_LAUNCHER_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+source "${_LAUNCHER_DIR}/../Resources/path-env.sh"
+
+CONFIG_DIR="${HOME}/Library/Application Support/PascalEditor"
+CONFIG_FILE="${CONFIG_DIR}/repo-path.txt"
+LOG_FILE="${CONFIG_DIR}/dev-server.log"
+PORT="3002"
+HEALTH_URL="http://localhost:${PORT}/api/health"
+EDITOR_URL="http://localhost:${PORT}/"
+
+alert() {
+  osascript -e "display alert \"$1\" message \"$2\" as informational"
+}
+
+notify() {
+  osascript -e "display notification \"$2\" with title \"$1\"" 2>/dev/null || true
+}
+
+is_repo_root() {
+  [[ -f "$1/package.json" ]] && grep -q '"name"[[:space:]]*:[[:space:]]*"editor"' "$1/package.json"
+}
+
+bundle_guess_repo() {
+  local macos
+  macos="$(cd "$(dirname "$0")" && pwd)"
+  local candidate
+  candidate="$(cd "${macos}/../../../.." && pwd)"
+  if is_repo_root "${candidate}"; then
+    printf '%s' "${candidate}"
+    return 0
+  fi
+  return 1
+}
+
+prompt_repo_and_save() {
+  mkdir -p "${CONFIG_DIR}"
+  local chosen
+  chosen="$(
+    osascript <<'APPLESCRIPT'
+tell application "System Events"
+  activate
+end tell
+set p to POSIX path of (choose folder with prompt "editor のルート（package.json があるフォルダ）を選んでください")
+return p
+APPLESCRIPT
+  )" || true
+  chosen="${chosen%/}"
+  if [[ -z "${chosen}" ]]; then
+    exit 1
+  fi
+  if ! is_repo_root "${chosen}"; then
+    alert "Pascal Editor" "選択したフォルダに editor の package.json が見つかりませんでした。"
+    exit 1
+  fi
+  printf '%s\n' "${chosen}" >"${CONFIG_FILE}"
+  printf '%s' "${chosen}"
+}
+
+ensure_repo_root() {
+  mkdir -p "${CONFIG_DIR}"
+
+  if [[ -f "${CONFIG_FILE}" ]]; then
+    local saved
+    saved="$(tr -d '\n' <"${CONFIG_FILE}")"
+    if [[ -n "${saved}" ]] && is_repo_root "${saved}"; then
+      printf '%s' "${saved}"
+      return 0
+    fi
+  fi
+
+  local guessed=""
+  if guessed="$(bundle_guess_repo 2>/dev/null)"; then
+    printf '%s\n' "${guessed}" >"${CONFIG_FILE}"
+    printf '%s' "${guessed}"
+    return 0
+  fi
+
+  prompt_repo_and_save
+}
+
+if ! command -v bun >/dev/null 2>&1; then
+  alert "Pascal Editor" "Bun が見つかりません。ターミナルでは動くのにこのダイアログが出る場合は、Bun を公式手順（https://bun.sh）で入れたうえで ~/.bun/bin に bun があるか確認してください。"
+  exit 1
+fi
+
+REPO_ROOT="$(ensure_repo_root)"
+
+if curl -sf "${HEALTH_URL}" >/dev/null 2>&1; then
+  open "${EDITOR_URL}"
+  notify "Pascal Editor" "すでに起動済みです。ブラウザを開きました。"
+  exit 0
+fi
+
+mkdir -p "${CONFIG_DIR}"
+cd "${REPO_ROOT}"
+
+# 以前の起動のログへ追記
+{
+  echo "----- $(date '+%Y-%m-%d %H:%M:%S') -----"
+  echo "Starting bun dev in ${REPO_ROOT}"
+} >>"${LOG_FILE}"
+
+nohup bun dev >>"${LOG_FILE}" 2>&1 &
+
+for _ in $(seq 1 45); do
+  if curl -sf "${HEALTH_URL}" >/dev/null 2>&1; then
+    open "${EDITOR_URL}"
+    notify "Pascal Editor" "起動しました（ログ: ${LOG_FILE}）"
+    exit 0
+  fi
+  sleep 1
+done
+
+alert "Pascal Editor" "起動の確認がタイムアウトしました。ログを確認してください。\n${LOG_FILE}"
+exit 1

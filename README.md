@@ -10,7 +10,18 @@ A 3D building editor built with React Three Fiber and WebGPU.
 
 https://github.com/user-attachments/assets/8b50e7cf-cebe-4579-9cf3-8786b35f7b6b
 
+## このリポジトリについて（フォーク・ライセンス）
 
+本リポジトリはオープンソースの **[pascalorg/editor](https://github.com/pascalorg/editor)** をベースとしたフォークです。
+
+- **著作権（オリジナル）:** オリジナルソースコードの著作権は **Pascal Group Inc.** に帰属します（Copyright © 2026 Pascal Group Inc.）。
+- **ライセンス:** オリジナルと同様、本リポジトリも **[MIT License](LICENSE)** の条件の下で提供されます。利用・改変・再配布の条件および免責事項は **`LICENSE` ファイル全文**に従ってください（MIT の要件として、著作権表示および許諾表示をソフトウェアの複製物または実質的な部分に含める必要があります）。
+- **商標等:** 「Pascal」等の名称・ロゴが第三者の商標である場合、本リポジトリのライセンスがそれらの使用を許諾するものではありません。
+- **本フォークでの変更:** macOS 向けランチャー（`mac-launcher/`）など、このフォーク独自の追加・変更は Git のコミット履歴で追跡できます。追加部分も MIT の範囲内で利用できますが、詳細はコミットおよび必要に応じて各ファイルのヘッダを参照してください。
+
+**Fork notice (English):** This repository is a fork of [pascalorg/editor](https://github.com/pascalorg/editor). The original software is copyright © Pascal Group Inc. and licensed under the [MIT License](LICENSE). See `LICENSE` for full terms. This fork may contain additional modifications (e.g. under `mac-launcher/`).
+
+---
 
 ## Repository Architecture
 

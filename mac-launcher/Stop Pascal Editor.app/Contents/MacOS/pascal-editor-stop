@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+
+PORT="3002"
+
+alert() {
+  osascript -e "display alert \"$1\" message \"$2\" as informational"
+}
+
+PIDS="$(lsof -ti:"${PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+if [[ -z "${PIDS}" ]]; then
+  alert "Stop Pascal Editor" "ポート ${PORT} で待ち受けているプロセスは見つかりませんでした（すでに停止している可能性があります）。"
+  exit 0
+fi
+
+kill -15 ${PIDS} 2>/dev/null || true
+sleep 1
+PIDS2="$(lsof -ti:"${PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+if [[ -n "${PIDS2}" ]]; then
+  kill -9 ${PIDS2} 2>/dev/null || true
+fi
+
+alert "Stop Pascal Editor" "開発サーバー（ポート ${PORT}）を停止しました。"
